@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="avgBel_v5:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="avgustBel.war">
+      <element id="artifact" artifact-name="avgBel_v5:war exploded" />
+    </root>
+  </artifact>
+</component>

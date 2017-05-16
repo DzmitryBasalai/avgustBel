@@ -1,0 +1,60 @@
+.mainDivLogin{
+    border:4px solid rgba(84,84,84,0.58);
+    background: rgba(255,183,0,0);
+    border-radius: 10px;
+    padding: 10px; position:fixed ;top:30%; left: 10%; right: 10%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    max-width: 1000px;
+    margin:0 auto;
+}
+
+ul.hr {
+    float: right;
+    margin: 0; /* Обнуляем значение отступов */
+    padding: 10px; /* Значение полей */
+}
+ul.hr li {
+    display: inline; /* Отображать как строчный элемент */
+    margin-right: 10px; /* Отступ слева */
+    padding: 5px; /* Поля вокруг текста */
+}
+ul.hr a{
+    text-decoration: none;
+}
+.error{
+    color: red;
+}
+.error {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.msg {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+#login-box {
+    width: 300px;
+    padding: 20px;
+    margin: 100px auto;
+    background: #fff;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border: 1px solid #000;
+}
+
+.mainFontSize{
+    font-size: 40px;
+    height: auto;
+}
