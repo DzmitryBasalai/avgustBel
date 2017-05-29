@@ -9,47 +9,47 @@ var bodyMes;
 function validate(btn) {
     $('#footerMes').empty();
 
-    var orderN = (btn.localeCompare("downloadBtn") == 0) ? (document.getElementById("orderNInput").value) : ("noOrder");
+    var company = (btn.localeCompare("downloadBtn") == 0) ? (document.getElementById("companyInput").value) : ("noCompany");
 
 
     var carN = document.getElementById("carNInput").value;
-   /* carN = replaceAll(carN, [" "], "");*/
+    /* carN = replaceAll(carN, [" "], "");*/
     carN = carN.replace("/ +", "");
 
     var phoneN = document.getElementById("phoneNInput").value;
 
-    var RegOrder = new RegExp("[^A-Za-z0-9А-Яа-я-_№]");
+    var RegCompany = new RegExp("[^A-Za-z0-9А-Яа-я-_№] ");
     var RegCar = new RegExp("[^A-Za-z0-9А-Яа-я-]");
     var RegPhone = new RegExp("[^0-9-\+]");
 
-    var errorOrderInputMes="Номер заказа может содержать буквы,цыфры,-,№,_\n";
-    var errorCarInputMes="Номер автомобиля может содержать буквы,цыфры,-\n";
-    var errorPhoneInputMes="Номер телефона может содержать +,цыфры,-";
-    var errorInputsMes="";
+    var errorOrderInputMes = "Поле \"Компания\" может содержать буквы,цыфры,-,№,_ пробел\n";
+    var errorCarInputMes = "Поле \"Номер автомобиля\" может содержать буквы,цыфры,-\n";
+    var errorPhoneInputMes = "Поле \"Номер телефона\" может содержать +,цыфры,-";
+    var errorInputsMes = "";
 
     bodyMes = alertDiv + imgAlert;
-    if(RegOrder.test(orderN))
-    {
-        errorInputsMes+=errorOrderInputMes;
+    if (RegCompany.test(company)) {
+        errorInputsMes += errorOrderInputMes;
     }
-    if(RegCar.test(carN))
-    {
-        errorInputsMes+=errorCarInputMes;
+    if (RegCar.test(carN)) {
+        errorInputsMes += errorCarInputMes;
     }
-    if(RegPhone.test(phoneN))
-    {
-        errorInputsMes+=errorPhoneInputMes;
+    if (RegPhone.test(phoneN)) {
+        errorInputsMes += errorPhoneInputMes;
     }
-    if(RegOrder.test(orderN) || RegCar.test(carN) || RegPhone.test(phoneN)){
-        bodyMes = alertDiv + imgAlert +"проверьте введенные данные"+ '</div>';
+    if (RegCompany.test(company) || RegCar.test(carN) || RegPhone.test(phoneN)) {
+        bodyMes = alertDiv + imgAlert + "проверьте введенные данные" + '</div>';
         $('#footerMes').append(bodyMes);
         alert(errorInputsMes);
         return;
     }
 
-
+    var errorMes
     if (carN.localeCompare("") == 0 || phoneN.localeCompare("") == 0) {
-        var errorMes = 'ВНИМАНИЕ!!! Клиент не зарегестрирован.\nВведите рег. номер автомобиля и/или номер телефона';
+        errorMes = 'ВНИМАНИЕ!!! Клиент не зарегестрирован.\n Номер автомобиля и номер телефона обязательные поля для заполнения';
+        if (company.localeCompare("noCompany") != 0) {
+            errorMes = 'ВНИМАНИЕ!!! Клиент не зарегестрирован.\n Компания, Номер автомобиля и номер телефона обязательные поля для заполнения';
+        }
 
         bodyMes = alertDiv + imgAlert + errorMes + '</div>';
 
@@ -59,9 +59,9 @@ function validate(btn) {
         return;
     }
     var confirmationWithoutOrderN = "Вы действительно хотите зарегестрироваться со следующими данными:\n НОМЕР АВТОМОБИЛЯ : " + carN + "\n НОМЕР ТЕЛЕФОНА :" + phoneN;
-    var confirmationOrderN = "\n НОМЕР ЗАКАЗА : " + orderN;
+    var confirmationOrderN = "\n НОМЕР ЗАКАЗА : " + company;
     var b;
-    if (orderN.localeCompare("noOrder") == 0)
+    if (company.localeCompare("noCompany") == 0)
         b = confirm(confirmationWithoutOrderN);
     else
         b = confirm(confirmationWithoutOrderN + confirmationOrderN);
@@ -72,11 +72,11 @@ function validate(btn) {
     $.ajax({
         type: "GET",
         contentType: "application/json; charset=UTF-8",
-        url: "/avgustBel/clientReg/" + carN + "/" + phoneN + "/" + orderN,
+        url: "/avgustBel/clientReg/" + carN + "/" + phoneN + "/" + company,
         success: function (client) {
             var messageImg;
             var bodyMes;
-            if (client.stateId == 6) {
+            if (client.state.id == 6) {
                 bodyMes = alertDiv + imgAlert;
             } else {
                 bodyMes = successDiv + imgOk;
@@ -87,7 +87,7 @@ function validate(btn) {
             $('#footerMes').append(bodyMes);
 
             alert(client.msg);
-            if (client.stateId != 6) {
+            if (client.state.id != 6) {
                 setTimeout(goToInitPage, 2000);
             }
         }
@@ -99,37 +99,10 @@ function goToInitPage() {
 }
 
 /*function replaceAll(str, search, replacement) {
-    /!* return str.split(search).join(replacement);*!/
+ /!* return str.split(search).join(replacement);*!/
 
-    search.forEach(function (entry) {
-        str = str.split(entry).join(replacement)
-    });
-    return str;
-};*/
-
-function checkOrderN() {
-    var orderN = document.getElementById("orderNInput").value;
-
-    $.ajax({
-        type: "GET",
-        contentType: "application/json; charset=UTF-8",
-        url: '/avgustBel/checkOrder-' + orderN,
-        success: function (order) {
-
-            if (order.state == 1) {
-                bodyMes = infoDiv + imgOk;
-                $('#regButton').removeAttr("disabled");
-            } else {
-                bodyMes = infoDiv + imgInfo;
-                $('#regButton').attr("disabled", true);
-            }
-            bodyMes += order.msg + '</div>';
-
-            $('#footerMes').empty();
-            if (orderN.length >= 3) {
-                $('#footerMes').append(bodyMes);
-            }
-        }
-
-    });
-}
+ search.forEach(function (entry) {
+ str = str.split(entry).join(replacement)
+ });
+ return str;
+ };*/

@@ -13,31 +13,38 @@
 
     <link href="<c:url value='/resources/css/login.css' />" rel="stylesheet"/>
     <link href="<c:url value='/resources/css/bootstrap.min.css' />" rel="stylesheet"/>
+    <link href="<c:url value='/resources/css/client.css' />" rel="stylesheet"/>
+
 
     <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/client.js"></script>
+
 </head>
 <body>
 
-<div class="container,form-horizontal, mainDivLogin">
+<img border="0" src="/avgustBel/resources/images/logo.svg" style=" height: 130px; width: 220px; margin-left: 30px">
 
-        <jsp:include page="/WEB-INF/views/locale.jsp"/>
+<div class="container,form-horizontal, mainDivLogin" style="background-color: #e4e4e4;">
 
-        <span class="mainFontSize"><spring:message code="clientIndex.title"/></span>
 
-        <div class="form-group col-sm-offset-1 col-sm-10" style="margin-top: 15px;">
-                <form action="/avgustBel/client-upload" method="get">
-                    <input type="submit" value="<spring:message code="clientIndex.uploading"/>"
-                           class="btn btn-info btn-block btn-lg mainFontSize">
-                </form>
-        </div>
+    <jsp:include page="/WEB-INF/views/client/locale.jsp"/>
 
-        <div class="form-group col-sm-offset-1 col-sm-10">
-            <form action="/avgustBel/client-download" method="get">
-                <input type="submit" name="download" value="<spring:message code="clientIndex.downloading"/>"
-                       class="btn btn-info btn-block btn-lg mainFontSize">
-            </form>
-        </div>
+    <span class="mainFontSize"><spring:message code="clientIndex.title"/></span>
+
+    <div class="form-group col-sm-offset-1 col-sm-10" style="margin-top: 15px;">
+        <form action="/avgustBel/client-upload" method="get">
+            <input type="submit" value="<spring:message code="clientIndex.uploading"/>"
+                   class="btn btn-info btn-block btn-lg mainFontSize">
+        </form>
+    </div>
+
+    <div class="form-group col-sm-offset-1 col-sm-10">
+        <form action="/avgustBel/client-download" method="get">
+            <input type="submit" value="<spring:message code="clientIndex.downloading"/>"
+                   class="btn btn-info btn-block btn-lg mainFontSize">
+        </form>
+    </div>
 </div>
 
 </body>

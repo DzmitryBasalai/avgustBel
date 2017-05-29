@@ -13,6 +13,7 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script src="<c:url value='/resources/js/client.js' />"></script>
     <script src="<c:url value='/resources/js/keyboard.js' />"></script>
+    <link href="<c:url value='/resources/css/client.css' />" rel="stylesheet"/>
 
     <%--styles--%>
     <link href="<c:url value='/resources/css/bootstrap.min.css' />" rel="stylesheet"/>
@@ -38,20 +39,16 @@
                             <form:form commandName="client" class="form-horizontal">
                                 <fieldset>
                                     <div class="form-group">
-                                        <spring:message code="client.orderNumber" var="orderN"/>
+                                        <spring:message code="client.company" var="company"/>
                                         <label class="control-label col-sm-2">
-                                            <img border="0" src="/avgustBel/resources/images/order.png"> ${orderN}
+                                            <img border="0" src="/avgustBel/resources/images/stock.png"> ${company}
                                         </label>
-
                                         <div class="col-sm-10">
-                                            <input title="${orderN}"
-                                                   placeholder="${orderN}"
+                                            <input title="${company}"
+                                                   placeholder="${company}"
                                                    class="form-control keyboardInput mainFontSize"
-                                                   id="orderNInput"
-                                                   onkeyup="checkOrderN()"
-                                                   onblur="checkOrderN()"/>
+                                                   id="companyInput"/>
                                         </div>
-
                                     </div>
                                     <div class="form-group">
                                         <span id="orderValue"></span>
@@ -92,7 +89,7 @@
                             <div class="col-sm-offset-2 col-sm-10">
                                 <input title="<spring:message code="enterBtn"/>"
                                        type="submit" id="regButton" value="<spring:message code="client.registrationBtn"/>"
-                                       disabled name="downloadBtn" class="btn btn-info btn-block mainFontSize" onclick="validate(this.name)">
+                                       name="downloadBtn" class="btn btn-info btn-block mainFontSize" onclick="validate(this.name)">
                             </div>
 
                         </div>

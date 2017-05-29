@@ -3,9 +3,9 @@ var currentPageId = 1, currentTotal = 5;
 $(document).ready(function () {
     update(currentPageId, currentTotal);
 
-   /* setInterval(function () {
+    setInterval(function () {
         constantUpdate();
-    }, 1500);*/
+    }, 2500);
 });
 
 function constantUpdate() {
@@ -65,18 +65,18 @@ function filClientsList(clientList, currentPageId, onPage) {
         clientTable += '<tr>';
         clientTable += '<td>' + n++ + '</td>';
 
-        var carN = " '" + client.carNumber + "'";
+        var carN = " '" + client.carN + "'";
 
-        clientTable += '<td><a onclick="linkSetCarNumber(' + carN + ')" href="#">' + client.carNumber + '</a></td>';
-        clientTable += '<td>' + client.phoneNumber + '</td>';
+        clientTable += '<td><a onclick="linkSetCarNumber(' + carN + ')" href="#">' + client.carN + '</a></td>';
+        clientTable += '<td>' + client.phoneN + '</td>';
         clientTable += '<td>' + client.destination + '</td>';
-        clientTable += '<td>' + client.orderNumber + '</td>';
+        clientTable += '<td>' + client.company + '</td>';
         clientTable += '<td>' + client.regTime + '</td>';
         clientTable += '<td>' + client.callTime + '</td>';
         clientTable += '<td>' + client.stock + '</td>';
         clientTable += '<td>' + client.ramp + '</td>';
         clientTable += '<td>' + client.arrivedTime + '</td>';
-        clientTable += '<td>' + client.state + '</td>';
+        clientTable += '<td>' + client.state.state + '</td>';
         clientTable += '</tr>';
     });
     clientTable += '</tbody>';
@@ -128,31 +128,40 @@ function checkCarNajax() {
             success: function (client) {
 
                 $('#trCntrlMes').empty();
-                var bodeMes = (client.stateId == 0) ? (infoDiv + imgInfo) : (successDiv + imgOk);
-                bodeMes += client.msg + '</div>'
-                $('#trCntrlMes').append(bodeMes);
+
+                if (client.state.id == 7) {
+                    bodyMes = infoDiv + imgInfo;
+                }
+                else if (client.state.id == 6) {
+                    bodyMes = dangerDiv + imgAlert;
+                } else {
+                    bodyMes = successDiv + imgOk;
+                }
+
+                bodyMes += client.msg + '</div>'
+                $('#trCntrlMes').append(bodyMes);
 
 
-                if (client.stateId == 1) {
+                if (client.state.id == 1) {
                     $('#callBtn').removeAttr("disabled");
                     $('#arrivedBtn').attr("disabled", true);
                     $('#servedBtn').attr("disabled", true);
                     $('#returnBtn').attr("disabled", true);
                 }
-                if (client.stateId == 2) {
+                if (client.state.id == 2) {
                     $('#callBtn').attr("disabled", true);
                     $('#arrivedBtn').removeAttr("disabled");
                     $('#servedBtn').attr("disabled", true);
                     $('#returnBtn').attr("disabled", true);
                 }
-                if (client.stateId == 3) {
+                if (client.state.id == 3) {
                     $('#callBtn').attr("disabled", true);
                     $('#arrivedBtn').attr("disabled", true);
                     $('#servedBtn').removeAttr("disabled");
                     $('#returnBtn').removeAttr("disabled");
                 }
 
-                if (client.stateId == 0 || stock.localeCompare("") == 0 || ramp.localeCompare("") == 0) {
+                if (client.state.id == 6 || client.state.id == 7 || stock.localeCompare("") == 0 || ramp.localeCompare("") == 0) {
                     $('#callBtn').attr("disabled", true);
                     $('#arrivedBtn').attr("disabled", true);
                     $('#servedBtn').attr("disabled", true);
@@ -179,17 +188,23 @@ function serviceBtnJs(value) {
         url: "/avgustBel/trControlOperationBtns-" + carN + "-" + stock + "-" + ramp + "-" + btn,
         success: function (client) {
             update(currentPageId, currentTotal);
+            $('#trCntrlMes').empty();
 
-            if (client.stateId == 7) {
-                $('#trCntrlMes').empty();
+            if (client.state.id == 6) {
+
                 var bodyMes = dangerDiv + imgAlert + client.msg + '</div>'
+                $('#trCntrlMes').append(bodyMes);
+
+                return;
+            } else if (client.state.id == 7) {
+
+                var bodyMes = infoDiv + imgInfo + client.msg + '</div>'
                 $('#trCntrlMes').append(bodyMes);
 
                 return;
             }
 
             if (btn.localeCompare(servedValue) == 0 || btn.localeCompare(returnValue) == 0) {
-                $('#trCntrlMes').empty();
                 var bodyMes = successDiv + imgOk + client.msg + '</div>'
                 $('#trCntrlMes').append(bodyMes);
 

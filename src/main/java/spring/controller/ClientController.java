@@ -1,18 +1,12 @@
 package spring.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import spring.model.Client;
-import spring.model.Order;
-import spring.service.ClientService;
+import spring.entity.Client;
 import java.util.Locale;
 
 @RestController
-public class ClientController {
-
-    @Autowired
-    ClientService clientService;
+public class ClientController extends BaseController{
 
 
     @RequestMapping(value = "/client-upload", method = RequestMethod.GET)
@@ -27,20 +21,16 @@ public class ClientController {
 
 
 
-    @RequestMapping(value = "clientReg/{carN}/{phoneN}/{orderN}", method = RequestMethod.GET)
+    @RequestMapping(value = "clientReg/{carN}/{phoneN}/{company}", method = RequestMethod.GET)
     @ResponseBody
-    public Client clientReg(@PathVariable String carN, @PathVariable String phoneN,@PathVariable String orderN, Locale locale){
-        Client client = new Client();
-        client.setCarNumber(carN);
-        client.setPhoneNumber(phoneN);
-        client.setOrderNumber(orderN);
-        String destination = (orderN.equals("noOrder")) ?("разгрузка") : ("загрузка");
-        return clientService.clientRegistration(client, destination, locale);
-    }
+    public Client clientReg(@PathVariable String carN, @PathVariable String phoneN, @PathVariable String company, Locale locale){
 
-    @RequestMapping(value = "checkOrder-{orderNumber}", method = RequestMethod.GET)
-    @ResponseBody
-    public Order checkOrder(@PathVariable String orderNumber, Locale locale) {
-        return clientService.checkOrder(orderNumber, locale);
+        Client clientQueue = new Client();
+        clientQueue.setCarN(carN);
+        clientQueue.setPhoneN(phoneN);
+        clientQueue.setCompany(company);
+        clientQueue.setDestination((company.equals("noCompany")) ?("разгрузка") : ("загрузка"));
+
+        return clientService.clientRegistration(clientQueue, locale);
     }
 }

@@ -26,7 +26,7 @@
     <c:url value="/j_spring_security_check" var="loginUrl"/>
     <form method="POST" action="${loginUrl}" id="login" class="form-horizontal">
 
-        <jsp:include page="/WEB-INF/views/locale.jsp"/>
+        <jsp:include page="/WEB-INF/views/operator/locale.jsp"/>
         <spring:message code="backBtn" var="backBtn"/>
         <h1><spring:message code="login.title"/></h1>
 
@@ -37,19 +37,30 @@
             <div class="msg">${msg}</div>
         </c:if>
 
-        <fieldset>
-            <div class="form-group">
+        <br/>
+        <div>
+        <%--    <div class="form-group">
                 <spring:message code="login.username" var="username"/>
+
                 <label class="control-label col-sm-2"><span
-                        class="glyphicon glyphicon-user"></span>${username}</label>
+                        class="glyphicon glyphicon-user"></span></label>
 
                 <div class="col-sm-10">
                     <input type="text" title="${username}" placeholder="${username}"
                            class="form-control" name="username"/>
                 </div>
+            </div>--%>
+
+            <div class=" input-group" style="padding:10px 20px  20px 30px;">
+                <spring:message code="login.username" var="username"/>
+
+                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                <input type="text" title="${username}" placeholder="${username}"
+                       class="form-control" name="username"/>
             </div>
 
-            <div class="form-group">
+
+        <%--    <div class="form-group">
                 <spring:message code="login.password" var="pass"/>
                 <label class="control-label col-sm-2"> <span
                         class="glyphicon glyphicon-lock"></span>${pass}</label>
@@ -57,16 +68,26 @@
                     <input type="password" title="${pass}" placeholder="${pass}"
                            class="form-control" name="password"/>
                 </div>
-            </div>
-        </fieldset>
+            </div>--%>
 
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <input title="<spring:message code="enterBtn"/>"
-                       type="submit"
-                       value="<spring:message code="enterBtn"/>" class="btn btn-success">
+            <div class=" input-group" style="padding:0 20px  20px 30px;">
+                <spring:message code="login.password" var="pass"/>
+
+                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                <input type="password" title="${pass}" placeholder="${pass}"
+                       class="form-control" name="password"/>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-8">
+                    <input title="<spring:message code="enterBtn"/>"
+                           type="submit"
+                           value="<spring:message code="enterBtn"/>" class="btn btn-info btn-block">
+                </div>
             </div>
         </div>
+
+
 
         <input type="hidden" name="${_csrf.parameterName}"
                value="${_csrf.token}"/>

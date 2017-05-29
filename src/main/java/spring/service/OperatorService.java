@@ -1,19 +1,12 @@
 package spring.service;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import spring.DAO.ClientDao;
-import spring.DAO.OrderDao;
-import spring.model.Client;
-import spring.model.Order;
+import org.springframework.transaction.annotation.Transactional;
+import spring.dao.ClientArchDao;
+import spring.entity.Client;
+import spring.entity.ClientArchive;
+import spring.entity.State;
 import spring.service.infoTable.ConnectionSingleton;
 import spring.service.infoTable.InfoTable;
 
@@ -21,265 +14,247 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Transactional
 @Service
-public class OperatorService {
-    @Autowired
-    OrderDao orderDao;
+public class OperatorService extends BaseService{
+
+    private ClientService clientService;
 
     @Autowired
-    ClientDao clientDao;
+    public void setClientService(ClientService clientService) {
+        this.clientService = clientService;
+    }
+
+    private ClientArchDao clientArchDao;
 
     @Autowired
-    MessageSource messageSource;
+    public void setClientArchDao(ClientArchDao clientArchDao) {
+        this.clientArchDao = clientArchDao;
+    }
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    public Map<String, Object> processFile(MultipartFile file, Locale locale) {
+    private Client dbError(String mes, String carN, Exception ex, Locale locale) {
+        Client client = new Client();
+        State state = new State();
+        state.setId(6);
+   /* state.setState("error");*/
 
-        List<Order> orderList = new ArrayList<Order>();
-        DataFormatter formatter = new DataFormatter(); //creating formatter using the default locale
+        client.setState(state);
+        client.setMsg(messageSource.getMessage(mes, new String[]{carN}, locale) + ex.getMessage());
+        return client;
+    }
+
+    public Map<String, Object> getClientInfoForTableRefresh(String pageId, String total, Locale locale) {
+        int pageIdInt = Integer.parseInt(pageId);
+        int totalInt = Integer.parseInt(total);
+        int offset = (pageIdInt - 1) * totalInt;
+
         Map<String, Object> map = new HashMap<String, Object>();
-
-
-        if (file.getOriginalFilename().endsWith("xlsx")) {
-            try {
-                int i = 0;
-                // Creates a workbook model from the uploaded excelfile
-                XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
-                // Creates a worksheet model representing the first sheet
-                XSSFSheet worksheet = workbook.getSheetAt(0);
-                // Reads the data in excel file until last row is encountered
-                while (i <= worksheet.getLastRowNum()) {
-                    // Creates an model for the UserInfo Model
-                    Order order = new Order();
-                    Cell cell = worksheet.getRow(i).getCell(0);
-                    order.setOrder(formatter.formatCellValue(cell));
-                    // persist data into database in here
-                    orderList.add(i, order);
-                    i++;
-                }
-                workbook.close();
-                map.put("orderList", orderList);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                map.put("state", 0);
-                map.put("message", messageSource.getMessage("order.error", null, locale));
-                return map;
-            }
-        }
-        else if (file.getOriginalFilename().endsWith("xls")) {
-            try {
-                int i = 0;
-                // Creates a workbook model from the uploaded excelfile
-                HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
-                // Creates a worksheet model representing the first sheet
-                HSSFSheet worksheet = workbook.getSheetAt(0);
-                // Reads the data in excel file until last row is encountered
-                while (i <= worksheet.getLastRowNum()) {
-                    Order order = new Order();
-                    // Creates an model representing a single row in excel
-                    Cell cell = worksheet.getRow(i).getCell(0);
-                    order.setOrder(formatter.formatCellValue(cell));
-
-                    // Sets the Read data to the model class
-                    // persist data into database in here
-                    orderList.add(i, order);
-                    i++;
-                }
-
-                workbook.close();
-                map.put("orderList", orderList);
-            } catch (Exception e) {
-                e.printStackTrace();
-                map.put("state", 0);
-                map.put("message", messageSource.getMessage("order.error", null, locale));
-                return map;
-            }
-        }
-        else {
-            map.put("state", 0);
-            map.put("message", messageSource.getMessage("order.unsuccess", null, locale));
-            return map;
+        try {
+            map.put("clientList", clientDao.getClientList(offset, totalInt, locale));
+            map.put("clientCount", clientDao.getTotalClientCount(locale));
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
-        orderDao.clearOrderTable();
-        orderDao.insertOrderList(orderList);
-        map.put("state", 1);
-        map.put("message", messageSource.getMessage("order.success", null, locale));
+        map.put("currentPagaId", Integer.parseInt(pageId));
+        map.put("currentTotal", totalInt);
+
         return map;
     }
 
+
     public Client checkCarN(String carN, Locale locale) {
-        //JSONObject jsonObject = new JSONObject();
-        Client client = new Client();
+
+        Client client;
         try {
             client = clientDao.getClientByCarN(carN, locale);
+
+            if (client != null) {
+                if (client.getState().getId() == 1)
+                    client.setMsg(messageSource.getMessage("client.isFoundInDb", new String[]{client.getCarN()}, locale));
+                else if (client.getState().getId() == 2) {
+                    client.setMsg(messageSource.getMessage("client.isCalled", new String[]{client.getCarN()}, locale));
+                }
+                else if (client.getState().getId() == 3) {
+                    client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarN()}, locale));
+                }
+            }
+            else {
+                client = new Client();
+                client.setState(stateDao.getStateById(7));
+                client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{carN}, locale));
+            }
+
         } catch (Exception ex) {
-            client.setMsg(ex.getMessage());
-            // jsonObject.put("client", client);
-            return client;
+            return dbError("exception.dbError", carN, ex, locale);
         }
 
-        if (client != null) {
-            if (client.getStateId() == 1)
-                client.setMsg(messageSource.getMessage("client.isFoundInDb", new String[]{client.getCarNumber()}, locale));
-            else if (client.getStateId() == 2) {
-                client.setMsg(messageSource.getMessage("client.isCalled", new String[]{client.getCarNumber()}, locale));
-            }
-            else if (client.getStateId() == 3) {
-                client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarNumber()}, locale));
-            }
-        }
-        else {
-            client = new Client();
-            client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{carN}, locale));
-        }
-
-        // jsonObject.put("client", client);
         return client;
     }
 
-
-    @Autowired
-    ClientService clientService;
 
     public Client operationByBtns(String carN, String stock, String ramp, String btnValue, Locale locale) {
 
-        Client client = new Client();
+        Client client;
         try {
             client = clientDao.getClientByCarN(carN, locale);
-        } catch (Exception ex) {
-            client.setMsg(ex.getMessage());
-            return client;
-        }
 
-        Map<String, Client> mapClietn = MapClientSingleton.getInstance().getMapClient();
-
-        if (btnValue.equals(messageSource.getMessage("operator.trControl.callBtn", null, locale))) {
-            if (mapClietn.size() < 4) {
-                mapClietn.put(client.getCarNumber(), client);
-
-                if (client != null) {
-                    client.setStock(stock);
-                    client.setRamp(ramp);
-                    client.setStateId(2);
-                    client.setCallTime(dateFormat.format(new Date()));
-                    client.setArrivedTime("");
-                    client.setServedTime("");
-                    client.setReturnTime("");
-
-/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ОТОБРАЖЕНИЕ ИНФОРМАЦИИ НА ТАБЛО****************************************/
-                    client = updateTable(mapClietn, client);
-                    if (client.getStateId() == 7)
-                        return client;
-//********************************************************************************************
-
-
-                    if (clientDao.updateClient(client) != 0)
-                        client.setMsg(messageSource.getMessage("client.isCalled", new String[]{client.getCarNumber()}, locale));
-                    else
-                        client.setMsg(messageSource.getMessage("client.isNOTCalled", new String[]{client.getCarNumber()}, locale));
-                }
-                else {
-                    client = new Client();
-                    client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{client.getCarNumber()}, locale));
-                }
-
-            }
-            else {
-                client.setMsg("Максимальное количесво одновременно вызываемых клиентов - 4");
-                client.setStateId(7);
+            if (client == null) {
+                client = new Client();
+                client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{carN}, locale));
+                client.setState(stateDao.getStateById(7));
                 return client;
             }
 
-
+        } catch (Exception ex) {
+            return dbError("exception.dbError", carN, ex, locale);
         }
-        else if (btnValue.equals(messageSource.getMessage("operator.trControl.arrivedBtn", null, locale))) {
-            if (client != null) {
-                client.setStateId(3);
-                client.setArrivedTime(dateFormat.format(new Date()));
+
+        Map<String, Client> mapClient = MapClientSingleton.getInstance().getMapClient();
+
+        if (btnValue.equals(messageSource.getMessage("operator.trControl.callBtn", null, locale))) {
+            if (mapClient.size() < 4) {
+                client.setStock(stock);
+                client.setRamp(ramp);
+                client.setCallTime(dateFormat.format(new Date()));
+                client.setArrivedTime("");
                 client.setServedTime("");
                 client.setReturnTime("");
 
-                if (clientDao.updateClient(client) != 0)
-                    client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarNumber()}, locale));
-                else
-                    client.setMsg(messageSource.getMessage("client.isNOTArrived", new String[]{client.getCarNumber()}, locale));
+
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ОТОБРАЖЕНИЕ ИНФОРМАЦИИ НА ТАБЛО****************************************/
+                mapClient.put(client.getCarN(), client);
+
+                client = updateTable(mapClient, client);
+                if (client.getState().getId() == 6)
+                    return client;
+//********************************************************************************************
+                try {
+                    client.setState(stateDao.getStateById(2));
+                    clientDao.updateClient(client);
+                    client.setMsg(messageSource.getMessage("client.isCalled", new String[]{client.getCarN()}, locale));
+
+                } catch (Exception ex) {
+                    mapClient.remove(client.getCarN());
+                    MapClientSingleton.getInstance().setMapClient(mapClient);
+
+                    return dbError("client.isNOTCalled", client.getCarN(), ex, locale);
+                }
             }
             else {
-                client = new Client();
-                client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{client.getCarNumber()}, locale));
+                client.setMsg(messageSource.getMessage("client.maxCalledClientCountInQueque", null, locale));
+                client.setState(stateDao.getStateById(7));
+                return client;
             }
+        }
 
-/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ИНФОРМАЦИЯ С ТАБЛО ИСЧЕЗАЕТ*/
-            mapClietn.remove(client.getCarNumber());
+        else if (btnValue.equals(messageSource.getMessage("operator.trControl.arrivedBtn", null, locale))) {
+
+            client.setArrivedTime(dateFormat.format(new Date()));
+            client.setServedTime("");
+            client.setReturnTime("");
+
+            /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ИНФОРМАЦИЯ С ТАБЛО ИСЧЕЗАЕТ*/
+            mapClient.remove(client.getCarN());
             /*очистка всего экрана*/
             client = clearTable(client);
-            if (client.getStateId() == 7) {
-                mapClietn.put(client.getCarNumber(), client);
+
+            if (client.getState().getId() == 6) {
+                mapClient.put(client.getCarN(), client);
                 return client;
             }
             //`~~~~~~~~~~~~~~~~~~~~
-            client = updateTable(mapClietn, client);
-            if (client.getStateId() == 7) {
-                mapClietn.put(client.getCarNumber(), client);
+            client = updateTable(mapClient, client);
+            if (client.getState().getId() == 6) {
+                mapClient.put(client.getCarN(), client);
                 return client;
             }
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-        }
-        else if (btnValue.equals(messageSource.getMessage("operator.trControl.servedBtn", null, locale))) {
-            if (client != null) {
-                client.setStateId(4);
-                client.setServedTime(dateFormat.format(new Date()));
-                client.setReturnTime("");
 
-                if (clientDao.updateClient(client) != 0) {
-                    client.setMsg(messageSource.getMessage("client.isServed", new String[]{client.getCarNumber()}, locale));
-                    clientDao.deleteClient(client, locale);
-                    //ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
-                    clientDao.insertClientInArchive(client);
-                }
-
-                else
-                    client.setMsg(messageSource.getMessage("client.isNOTServed", new String[]{client.getCarNumber()}, locale));
+            try {
+                client.setState(stateDao.getStateById(3));
+                clientDao.updateClient(client);
+                client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarN()}, locale));
+            } catch (Exception ex) {
+                return dbError("client.isNOTArrived", client.getCarN(), ex, locale);
             }
-            else {
-                client = new Client();
-                client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{client.getCarNumber()}, locale));
+        }
+
+        else if (btnValue.equals(messageSource.getMessage("operator.trControl.servedBtn", null, locale))) {
+
+            client.setServedTime(dateFormat.format(new Date()));
+            client.setReturnTime("");
+
+            try {
+                client.setState(stateDao.getStateById(4));
+                clientDao.updateClient(client);
+                client.setMsg(messageSource.getMessage("client.isServed", new String[]{client.getCarN()}, locale));
+
+                clientDao.deleteClient(client, locale);
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
+                ClientArchive clientArchive = new ClientArchive();
+                clientArchive.setArrivedTime(client.getArrivedTime());
+                clientArchive.setCallTime(client.getCallTime());
+                clientArchive.setCarN(client.getCarN());
+                clientArchive.setCompany(client.getCompany());
+                clientArchive.setDestination(client.getDestination());
+                clientArchive.setPhoneN(client.getPhoneN());
+                clientArchive.setRamp(client.getRamp());
+                clientArchive.setRegTime(client.getRegTime());
+                clientArchive.setReturnTime(client.getReturnTime());
+                clientArchive.setServedTime(client.getServedTime());
+                clientArchive.setState(client.getState());
+                clientArchive.setStock(client.getStock());
+
+                clientArchDao.addClientToArch(clientArchive, locale);
+
+            } catch (Exception ex) {
+                return dbError("client.isNOTServed", client.getCarN(), ex, locale);
             }
         }
         else if (btnValue.equals(messageSource.getMessage("operator.trControl.returnBtn", null, locale))) {
-            if (client != null) {
-                client.setStateId(5);
-                client.setReturnTime(dateFormat.format(new Date()));
 
-                if (clientDao.updateClient(client) != 0) {
+            client.setReturnTime(dateFormat.format(new Date()));
 
-                    clientDao.deleteClient(client, locale);
-                    /*ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ*/
-                    clientDao.insertClientInArchive(client);
+            try {
+
+                clientDao.updateClient(client);
 
 
-                    /*Помещение клиента в конец списка ожидания*/
-                    client = clientService.clientRegistration(client, client.getDestination(), locale);
-                    client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarNumber()}, locale));
-                }
+                clientDao.deleteClient(client, locale);
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
+                ClientArchive clientArchive = new ClientArchive();
+                clientArchive.setArrivedTime(client.getArrivedTime());
+                clientArchive.setCallTime(client.getCallTime());
+                clientArchive.setCarN(client.getCarN());
+                clientArchive.setCompany(client.getCompany());
+                clientArchive.setDestination(client.getDestination());
+                clientArchive.setPhoneN(client.getPhoneN());
+                clientArchive.setRamp(client.getRamp());
+                clientArchive.setRegTime(client.getRegTime());
+                clientArchive.setReturnTime(client.getReturnTime());
+                clientArchive.setServedTime(client.getServedTime());
+                clientArchive.setState(client.getState());
+                clientArchive.setStock(client.getStock());
 
-                else
-                    client.setMsg(messageSource.getMessage("client.isNOTReturned", new String[]{client.getCarNumber()}, locale));
-            }
-            else {
-                client = new Client();
-                client.setMsg(messageSource.getMessage("client.isNOTFoundInDb", new String[]{client.getCarNumber()}, locale));
+                clientArchDao.addClientToArch(clientArchive, locale);
+
+                  /*Помещение клиента в конец списка ожидания*/
+                client = clientService.clientRegistration(client, locale);
+                client.setState(stateDao.getStateById(5));
+                client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarN()}, locale));
+
+            } catch (Exception ex) {
+                return dbError("client.isNOTReturned", client.getCarN(), ex, locale);
             }
         }
 
         return client;
     }
 
-    Client updateTable(Map<String, Client> mapClient, Client client) {
+    private Client updateTable(Map<String, Client> mapClient, Client client) {
 
         List<String> clientList = new ArrayList<String>();
 
@@ -292,7 +267,7 @@ public class OperatorService {
                 clientList.add(" ");
             }
             else {
-                clientList.add(clientEntry.getCarNumber());
+                clientList.add(clientEntry.getCarN());
                 clientList.add(clientEntry.getStock());
                 clientList.add(clientEntry.getRamp());
             }
@@ -301,53 +276,32 @@ public class OperatorService {
         InfoTable infoTable = ConnectionSingleton.getInstance().getInfoTable();
         try {
             infoTable.SendData(clientList);
-            //infoTable.SetBrightness(5);
 
-            MapClientSingleton.getInstance().setMapClient(mapClient);
         } catch (Exception ex) {
-            ex.printStackTrace();
             client.setMsg(ex.getMessage());
-            client.setStateId(7);
-
-            mapClient.remove(client.getCarNumber());
-            MapClientSingleton.getInstance().setMapClient(mapClient);
-
-            return client;
+            client.setState(stateDao.getStateById(6));
+            mapClient.remove(client.getCarN());
         }
 
+        MapClientSingleton.getInstance().setMapClient(mapClient);
         return client;
     }
-    Client clearTable(Client client){
+
+    private Client clearTable(Client client) {
         List<String> clientList = new ArrayList<String>();
-        for(int i=0;i<12;i++){
+        for (int i = 0; i < 12; i++) {
             clientList.add(" ");
         }
 
         InfoTable infoTable = ConnectionSingleton.getInstance().getInfoTable();
         try {
             infoTable.SendData(clientList);
-            //infoTable.SetBrightness(5);
         } catch (Exception ex) {
-            ex.printStackTrace();
             client.setMsg(ex.getMessage());
-            client.setStateId(7);
-
-            return client;
+            client.setState(stateDao.getStateById(6));
         }
+
         return client;
-    }
-
-    public Map<String, Object> getClientInfoForTableRefresh(String pageId, String total) {
-        int pageIdInt = Integer.parseInt(pageId);
-        int totalInt = Integer.parseInt(total);
-        pageIdInt = (pageIdInt - 1) * totalInt + 1;
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("clientList", clientDao.getClientListByPage(pageIdInt, totalInt));
-        map.put("clientCount", clientDao.getClientCount());
-        map.put("currentPagaId", Integer.parseInt(pageId));
-        map.put("currentTotal", totalInt);
-        return map;
     }
 }
 
@@ -355,9 +309,9 @@ class MapClientSingleton {
 
     private static MapClientSingleton getInstance = new MapClientSingleton();
 
-    Map<String, Client> map;
+    private Map<String, Client> map;
 
-    public static MapClientSingleton getInstance() {
+    static MapClientSingleton getInstance() {
         return getInstance;
     }
 
@@ -365,11 +319,11 @@ class MapClientSingleton {
         map = new LinkedHashMap<String, Client>();
     }
 
-    public Map<String, Client> getMapClient() {
+    Map<String, Client> getMapClient() {
         return map;
     }
 
-    public void setMapClient(Map<String, Client> map) {
+    void setMapClient(Map<String, Client> map) {
         this.map = map;
     }
 }

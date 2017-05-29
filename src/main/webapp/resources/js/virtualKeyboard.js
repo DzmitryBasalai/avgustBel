@@ -91,12 +91,12 @@ function buildKeyboardInputs() {
     //
     // - Layout dead keys (diacritic + letter) should be added as arrays
     //   of two item arrays with hash keys equal to the diacritic.  See
-    //   the "this.VKI_deadkey" spring.model below the layout definitions. In
+    //   the "this.VKI_deadkey" spring.entity below the layout definitions. In
     //   each two item child array, the second item is what the diacritic
     //   would change the first item to.
     //
     // - To disable dead keys for a layout, simply assign true to the
-    //   this.VKI_layoutDDK (DDK = disable dead keys) spring.model of the same
+    //   this.VKI_layoutDDK (DDK = disable dead keys) spring.entity of the same
     //   name as the layout.  See the Numpad layout below for an example.
     //
     // - Note that any characters beyond the normal ASCII set should be

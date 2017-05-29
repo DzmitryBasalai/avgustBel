@@ -13,6 +13,7 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script src="<c:url value='/resources/js/client.js' />"></script>
     <script src="<c:url value='/resources/js/keyboard.js' />"></script>
+    <link href="<c:url value='/resources/css/client.css' />" rel="stylesheet"/>
 
     <%--styles--%>
     <link href="<c:url value='/resources/css/bootstrap.min.css' />" rel="stylesheet"/>
@@ -44,7 +45,7 @@
                                         <div class="col-sm-10">
                                             <form:input title="${carN}"
                                                         placeholder="${carN}"
-                                                        path="carNumber"
+                                                        path="carN"
                                                         class="form-control keyboardInput mainFontSize"
                                                         id="carNInput"/>
                                         </div>
@@ -59,7 +60,7 @@
                                         <div class="col-sm-10">
                                             <form:input title="${phoneN}"
                                                         placeholder="${phoneN}"
-                                                        path="phoneNumber"
+                                                        path="phoneN"
                                                         class="form-control keyboardInput mainFontSize"
                                                         id="phoneNInput"/>
                                         </div>

@@ -21,7 +21,7 @@
 
 <div class="container,form-horizontal, mainDivLogin">
 
-    <jsp:include page="/WEB-INF/views/locale.jsp"/>
+    <jsp:include page="/WEB-INF/views/operator/locale.jsp"/>
 
     <div class="form-group col-sm-offset-1 col-sm-10">
 

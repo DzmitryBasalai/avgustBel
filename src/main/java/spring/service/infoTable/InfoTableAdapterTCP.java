@@ -20,11 +20,8 @@ public class InfoTableAdapterTCP implements InfoTableAdapter {
     private int InfoTableAddress;
     private Socket socket;
 
-    public InfoTableAdapterTCP() {
 
-    }
-
-    public InfoTableAdapterTCP(String IP, int port, int address) {
+    InfoTableAdapterTCP(String IP, int port, int address) {
         ipAddr = IP;
         this.port = port;
         InfoTableAddress = address;
@@ -33,7 +30,6 @@ public class InfoTableAdapterTCP implements InfoTableAdapter {
     @Override
     public void SendData(List<String> data) throws Exception {
         try {
-
             for (int i = 0; i < data.size(); i++) {
                 InetAddress ipAddress = InetAddress.getByName(this.ipAddr);
                 this.socket = new Socket(ipAddress, this.port, false);

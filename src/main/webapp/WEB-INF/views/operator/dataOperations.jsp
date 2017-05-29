@@ -118,7 +118,7 @@
     </div>
 
 
-    <jsp:include page="/WEB-INF/views/footer.jsp"/>
+    <jsp:include page="/WEB-INF/views/operator/footer.jsp"/>
 </div>
 </body>
 

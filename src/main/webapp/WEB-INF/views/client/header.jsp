@@ -9,9 +9,10 @@
     <style>
         .mainHeader {
             max-width: none;
-            font-size: 24px;
+            font-size: 30px;
         }
     </style>
+
 </head>
 <body>
 
@@ -24,19 +25,17 @@
     }
 </script>
 
-<nav class="navbar navbar-inverse" style="border-radius: 0px;">
+<nav class="navbar navbar-inverse" style="border-radius:0;">
     <div class="container-fluid">
         <div class="navbar-header ">
 
             <div style="display: inline-block">
-                <form name="submitFormDataOperation" method="GET" action="/avgustBel/client-download">
-                    <label class="navbar-brand mainHeader"><spring:message code="client.uploading.title"/></label>
-                </form>
+                <img border="0" src="/avgustBel/resources/images/logo.svg" style=" height: 80px; width: 220px;">
             </div>
         </div>
 
         <div class="collapse navbar-collapse mainHeader" id="myNavbar">
-            <jsp:include page="/WEB-INF/views/locale.jsp"/>
+            <jsp:include page="/WEB-INF/views/client/locale.jsp"/>
 
             <ul class="nav navbar-nav navbar-right">
 
