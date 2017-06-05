@@ -27,6 +27,8 @@ public class ClientService extends BaseService {
         client.setArrivedTime("");
         client.setServedTime("");
         client.setReturnTime("");
+        client.setEnterTime("");
+        client.setLeaveTime("");
 
         try {
             Client clientFromBD = clientDao.getClientByCarN(client.getCarN(), locale);

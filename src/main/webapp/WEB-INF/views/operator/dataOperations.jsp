@@ -7,7 +7,7 @@
     <title><spring:message code="operatorIndex.dataOperations"/></title>
     <link rel="shortcut icon" type="image/png" href="/avgustBel/resources/images/logo.png">
     <%--scripts--%>
-    <script src="<c:url value='/resources/js/operator.js' />"></script>
+    <script src="<c:url value='/resources/js/dataOperations.js' />"></script>
     <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
 
@@ -22,95 +22,109 @@
     <jsp:include page="/WEB-INF/views/operator/header.jsp"/>
     <div class="container">
         <div class="row">
-            <div class="col-sm-6">
-                <div class="panel panel-primary">
-                    <div class="panel-heading"><spring:message code="dataOperation.dataDownloading"/></div>
-                    <div class="panel-body" style="height: 67%">
 
-                        <form method="POST"
-                              action="/avgustBel/operator-downloadFile?${_csrf.parameterName}=${_csrf.token}"
-                              enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label for="upFile"><spring:message code="operator.fileToDownload"/></label>
-                                <span class="btn btn-default btn-file">
-                                        <spring:message code="dataOperation.browse"/>&hellip;
-                                        <input type="file" name="file" id="upFile">
-                                    </span>
-                            </div>
-                            <input type="submit" value="<spring:message code="operator.downloadBtn"/>"
-                                   class="btn btn-info btn-block btn-lg">
-
-
-                        </form>
-
-                        <div style="max-height:80%; overflow:auto;">
-                            <table class="responstable" style="width: 100%">
-                                <c:set var="orderList" scope="session" value="${orderList}"/>
-                                <c:if test="${orderList.size() > 0}">
-                                    <tr>
-                                        <th>Номер Заказа</th>
-                                    </tr>
-                                </c:if>
-                                <c:forEach items="${orderList}" var="order">
-                                    <tr>
-                                        <td>${order.order}</td>
-                                    </tr>
-
-                                </c:forEach>
-                            </table>
-                        </div>
-
-                    </div>
-                    <div class="panel-footer" style="height: 105px;">
-                        <c:if test="${fileDownloadMes.length() > 0}">
-                            <c:choose>
-                                <c:when test="${state==0}">
-                                    <div class="alert alert-danger"><img
-                                            src='/avgustBel/resources/images/alert.png'> ${fileDownloadMes} </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="alert alert-success"><img
-                                            src='/avgustBel/resources/images/ok.png'> ${fileDownloadMes} </div>
-                                </c:otherwise>
-                            </c:choose>
-                        </c:if>
-                    </div>
-                    <%-- <div class="panel-footer"><spring:message code="dataOperation.message"/> ${fileDownloadMes}</div>--%>
-                </div>
-            </div>
-            <div class="col-sm-6">
+            <div class="col-md-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading"><spring:message code="dataOperation.dataUploading"/></div>
-                    <div class="panel-body" style="height: 67%">
-                        <form action="/avgustBel/report" method="get">
-                            <div class="form-group input-group" style="padding-top: 50px;">
+                    <div class="panel-body" style="height: 70%">
+
+                        <form:form action="/avgustBel/report" method="get">
+
+                            <div class="form-group input-group" style="padding-top: 20px;">
 
                                 <span class="input-group-addon"><i
                                         class="glyphicon glyphicon-calendar"></i> <spring:message
                                         code="dataOperation.from"/></span>
-                                <input id="datetimepickerFrom" name="fromInput" type="text"
+                                <input id="datetimepickerFrom" name="fromInput" type="text" value="${from}"
                                        placeholder="<spring:message code="dataOperation.from"/>"
-                                       onchange="writeExcelFile()" class="form-control">
+                                       onchange="enableGetClientArchBtn()" class="form-control">
                             </div>
 
-                            <div class="form-group" style="padding-top: 50px;">
+                            <div class="form-group" style="padding-top: 20px;">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i
                                             class="glyphicon glyphicon-calendar"></i> <spring:message
                                             code="dataOperation.to"/></span>
-                                    <input id="datetimepickerTo" name="toInput" type="text"
+                                    <input id="datetimepickerTo" name="toInput" type="text" value="${to}"
                                            placeholder="<spring:message code="dataOperation.to"/>"
-                                           onchange="writeExcelFile()" class="form-control">
+                                           onchange="enableGetClientArchBtn()" class="form-control">
                                 </div>
                             </div>
-                            <div style="padding-top: 50px;">
+                            <div style="padding-top: 20px;">
                                 <input type="submit" value="<spring:message code="dataOperation.uploadBtn"/>"
-                                       id="writeToExcelBtn" disabled
+                                       id="getClArchBtn" disabled
                                        class="btn btn-info btn-block btn-lg">
                             </div>
-                        </form>
+                        </form:form>
+
+                        <div style="max-height:70%; overflow:auto;">
+                            <table class="responstable" style="width: 95%" id="archTable">
+                                <c:set var="clientListArch" scope="session" value="${clientListFromArchive}"/>
+                                <c:if test="${clientListArch.size() > 0}">
+
+                                    <tr>
+                                        <th>№</th>
+                                        <th><spring:message code='operator.trControlTable.carRegN'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.phoneN'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.destination'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='client.company' javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.regTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.callTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControl.stock'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControl.ramp'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.enterTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.arriveTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.servedTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.returnTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.leaveTime'
+                                                            javaScriptEscape='true'/></th>
+                                        <th><spring:message code='operator.trControlTable.state'
+                                                            javaScriptEscape='true'/></th>
+                                    </tr>
+
+                                    <c:forEach items="${clientListArch}" var="client" varStatus="clientLoop">
+                                        <tr>
+                                            <td>${clientLoop.index}</td>
+                                            <td>${client.carN}</td>
+                                            <td>${client.phoneN}</td>
+                                            <td>${client.destination}</td>
+                                            <td>${client.company}</td>
+                                            <td>${client.regTime}</td>
+                                            <td>${client.callTime}</td>
+                                            <td>${client.stock}</td>
+                                            <td>${client.ramp}</td>
+                                            <td>${client.enterTime}</td>
+                                            <td>${client.arrivedTime}</td>
+                                            <td>${client.servedTime}</td>
+                                            <td>${client.returnTime}</td>
+                                            <td>${client.leaveTime}</td>
+                                            <td>${client.state.state}</td>
+                                        </tr>
+
+                                    </c:forEach>
+                                </c:if>
+                            </table>
+                        </div>
                     </div>
-                    <div class="panel-footer" style="height: 105px;"></div>
+                    <div class="panel-footer" style="height: 90px;">
+                        <c:if test="${clientListArch.size() == 0}">
+                            <div class="alert alert-info"><img src='/avgustBel/resources/images/info.png'> Ничего не найдено</div>
+                        </c:if>
+                        <c:if test="${clientListArch.size() > 0}">
+                            <div class="alert alert-success"><img src='/avgustBel/resources/images/ok.png'> Данные загружены успешно</div>
+                        </c:if>
+                    </div>
                 </div>
             </div>
 

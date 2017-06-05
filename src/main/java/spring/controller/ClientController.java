@@ -22,7 +22,7 @@ public class ClientController extends BaseController{
 
 
     @RequestMapping(value = "clientReg/{carN}/{phoneN}/{company}", method = RequestMethod.GET)
-    @ResponseBody
+
     public Client clientReg(@PathVariable String carN, @PathVariable String phoneN, @PathVariable String company, Locale locale){
 
         Client clientQueue = new Client();
@@ -33,4 +33,5 @@ public class ClientController extends BaseController{
 
         return clientService.clientRegistration(clientQueue, locale);
     }
+
 }

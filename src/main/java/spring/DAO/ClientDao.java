@@ -13,7 +13,7 @@ public interface ClientDao {
 
     int getTotalClientCount(Locale locale) throws Exception;
 
-    List<Client> getClientList(int offset, int total, Locale locale) throws Exception;
+    List<Client> getClientList(int offset, int total,String destination,  Locale locale) throws Exception;
 
 
     void updateClient(Client client) throws Exception;

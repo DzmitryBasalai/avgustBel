@@ -9,7 +9,7 @@ var bodyMes;
 function validate(btn) {
     $('#footerMes').empty();
 
-    var company = (btn.localeCompare("downloadBtn") == 0) ? (document.getElementById("companyInput").value) : ("noCompany");
+    var company = (btn.localeCompare("downloadBtn") === 0) ? (document.getElementById("companyInput").value) : ("noCompany");
 
 
     var carN = document.getElementById("carNInput").value;
@@ -44,10 +44,10 @@ function validate(btn) {
         return;
     }
 
-    var errorMes
-    if (carN.localeCompare("") == 0 || phoneN.localeCompare("") == 0) {
+    var errorMes;
+    if (carN.localeCompare("") === 0 || phoneN.localeCompare("") === 0) {
         errorMes = 'ВНИМАНИЕ!!! Клиент не зарегестрирован.\n Номер автомобиля и номер телефона обязательные поля для заполнения';
-        if (company.localeCompare("noCompany") != 0) {
+        if (company.localeCompare("noCompany") !== 0) {
             errorMes = 'ВНИМАНИЕ!!! Клиент не зарегестрирован.\n Компания, Номер автомобиля и номер телефона обязательные поля для заполнения';
         }
 
@@ -61,11 +61,11 @@ function validate(btn) {
     var confirmationWithoutOrderN = "Вы действительно хотите зарегестрироваться со следующими данными:\n НОМЕР АВТОМОБИЛЯ : " + carN + "\n НОМЕР ТЕЛЕФОНА :" + phoneN;
     var confirmationOrderN = "\n НОМЕР ЗАКАЗА : " + company;
     var b;
-    if (company.localeCompare("noCompany") == 0)
+    if (company.localeCompare("noCompany") === 0)
         b = confirm(confirmationWithoutOrderN);
     else
         b = confirm(confirmationWithoutOrderN + confirmationOrderN);
-    if (b == false) {
+    if (b === false) {
         return;
     }
 

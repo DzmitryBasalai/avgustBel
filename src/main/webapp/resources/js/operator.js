@@ -1,15 +1,18 @@
 var currentPageId = 1, currentTotal = 5;
-
+var destination;
 $(document).ready(function () {
-    update(currentPageId, currentTotal);
+    update(currentPageId, currentTotal,destination);
 
     setInterval(function () {
         constantUpdate();
     }, 2500);
 });
 
+function setDestinatuion(dest){
+    destination=dest;
+}
 function constantUpdate() {
-    update(currentPageId, currentTotal);
+    update(currentPageId, currentTotal,destination);
 }
 
 
@@ -21,16 +24,16 @@ function paginationLinks(count, onPage, curPage) {
         currentPage: curPage,
 
         onPageClick: function (pageNumber) {
-            update(pageNumber, onPage)
+            update(pageNumber, onPage,destination)
         }
     });
 }
 
-function update(pageId, onPage) {
+function update(pageId, onPage, destination) {
     $.ajax({
-        url: "/avgustBel/refresh-" + pageId + "-" + onPage,
+        url: "/avgustBel/refresh-" + pageId + "-" + onPage + "-"+destination,
         success: function (map) {
-            clientCount = map.clientCount
+            clientCount = map.clientCount;
             $('#clientsCount').html(clientCount);
             currentPageId = map.currentPagaId;
             currentTotal = map.currentTotal;
@@ -41,8 +44,9 @@ function update(pageId, onPage) {
 }
 
 function filClientsList(clientList, currentPageId, onPage) {
+    var clientTable;
     var n = 1 + onPage * (currentPageId - 1);
-    int : i = 1;
+    int: i = 1;
     $('#table').empty();
     clientTable = '<thead>';
     clientTable += '<tr>';
@@ -50,12 +54,17 @@ function filClientsList(clientList, currentPageId, onPage) {
     clientTable += '<th>' + locale['operator.trControlTable.carRegN'] + '</th>';
     clientTable += '<th>' + locale['operator.trControlTable.phoneN'] + '</th>';
     clientTable += '<th>' + locale['operator.trControlTable.destination'] + '</th>';
-    clientTable += '<th>' + locale['operator.trControl.orderN'] + '</th>';
+    clientTable += '<th>' + locale['client.company'] + '</th>';
     clientTable += '<th>' + locale['operator.trControlTable.regTime'] + '</th>';
     clientTable += '<th>' + locale['operator.trControlTable.callTime'] + '</th>';
     clientTable += '<th>' + locale['operator.trControl.stock'] + '</th>';
     clientTable += '<th>' + locale['operator.trControl.ramp'] + '</th>';
+    clientTable += '<th>' + locale['operator.trControlTable.enteredTime'] + '</th>';
     clientTable += '<th>' + locale['operator.trControlTable.arriveTime'] + '</th>';
+
+    clientTable += '<th>' + locale['operator.trControlTable.servedTime'] + '</th>';
+    clientTable += '<th>' + locale['operator.trControlTable.returnTime'] + '</th>';
+
     clientTable += '<th>' + locale['operator.trControlTable.state'] + '</th>';
     clientTable += '</tr>';
     clientTable += '</thead>';
@@ -75,7 +84,12 @@ function filClientsList(clientList, currentPageId, onPage) {
         clientTable += '<td>' + client.callTime + '</td>';
         clientTable += '<td>' + client.stock + '</td>';
         clientTable += '<td>' + client.ramp + '</td>';
+        clientTable += '<td>' + client.enterTime + '</td>';
         clientTable += '<td>' + client.arrivedTime + '</td>';
+
+        clientTable += '<td>' + client.servedTime + '</td>';
+        clientTable += '<td>' + client.returnTime + '</td>';
+
         clientTable += '<td>' + client.state.state + '</td>';
         clientTable += '</tr>';
     });
@@ -87,7 +101,7 @@ function filClientsList(clientList, currentPageId, onPage) {
 function changeFunc() {
     var selectBox = document.getElementById("selectBox");
     var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-    update(1, selectedValue);
+    update(1, selectedValue,destination);
 }
 
 function linkSetCarNumber(carN) {
@@ -97,9 +111,13 @@ function linkSetCarNumber(carN) {
         url: "/avgustBel/checkCarN/" + carN,
         success: function (client) {
             document.getElementById("carNumberInputId").value = carN;
-            document.getElementById("selectStockId").value = client.stock;
-            selectStock();
-            document.getElementById("selectRampId").value = client.ramp;
+
+            try {
+                document.getElementById("selectStockId").value = client.stock;
+                selectStock();
+                document.getElementById("selectRampId").value = client.ramp;
+            } catch (err) {
+            }
             checkCarNajax();
         }
     });
@@ -116,9 +134,13 @@ var successDiv = '<div class="alert alert-success">';
 function checkCarNajax() {
 
     var inputCarN = document.getElementById("carNumberInputId").value;
-    var stock = document.getElementById("selectStockId").value;
-    var ramp = document.getElementById("selectRampId").value;
-
+    var stock;
+    var ramp;
+    try {
+        stock = document.getElementById("selectStockId").value;
+        ramp = document.getElementById("selectRampId").value;
+    } catch (err) {
+    }
 
     if (inputCarN.length >= 1) {
         $.ajax({
@@ -129,43 +151,79 @@ function checkCarNajax() {
 
                 $('#trCntrlMes').empty();
 
-                if (client.state.id == 7) {
+                if (client.state.id === 7) {
                     bodyMes = infoDiv + imgInfo;
                 }
-                else if (client.state.id == 6) {
+                else if (client.state.id === 6) {
                     bodyMes = dangerDiv + imgAlert;
                 } else {
                     bodyMes = successDiv + imgOk;
                 }
 
-                bodyMes += client.msg + '</div>'
+                bodyMes += client.msg + '</div>';
                 $('#trCntrlMes').append(bodyMes);
 
 
-                if (client.state.id == 1) {
+                if (client.state.id === 1) {
                     $('#callBtn').removeAttr("disabled");
+                    $('#enterBtn').removeAttr("disabled");
                     $('#arrivedBtn').attr("disabled", true);
                     $('#servedBtn').attr("disabled", true);
                     $('#returnBtn').attr("disabled", true);
+                    $('#leaveBtn').attr("disabled", true);
                 }
-                if (client.state.id == 2) {
+                if (client.state.id === 2) {
                     $('#callBtn').attr("disabled", true);
+                    $('#enterBtn').removeAttr("disabled");
+                    $('#arrivedBtn').attr("disabled", true);
+                    $('#servedBtn').attr("disabled", true);
+                    $('#returnBtn').attr("disabled", true);
+                    $('#leaveBtn').attr("disabled", true);
+                }
+                if (client.state.id === 8) {
+                    $('#callBtn').attr("disabled", true);
+                    $('#enterBtn').attr("disabled", true);
                     $('#arrivedBtn').removeAttr("disabled");
                     $('#servedBtn').attr("disabled", true);
                     $('#returnBtn').attr("disabled", true);
+                    $('#leaveBtn').attr("disabled", true);
                 }
-                if (client.state.id == 3) {
+
+                if (client.state.id === 3) {
                     $('#callBtn').attr("disabled", true);
+                    $('#enterBtn').attr("disabled", true);
                     $('#arrivedBtn').attr("disabled", true);
                     $('#servedBtn').removeAttr("disabled");
                     $('#returnBtn').removeAttr("disabled");
+                    $('#leaveBtn').attr("disabled", true);
+                }
+                if (client.state.id === 4 || client.state.id === 5 ) {
+                    $('#callBtn').attr("disabled", true);
+                    $('#enterBtn').attr("disabled", true);
+                    $('#arrivedBtn').attr("disabled", true);
+                    $('#servedBtn').attr("disabled",true);
+                    $('#returnBtn').attr("disabled",true);
+                    $('#leaveBtn').removeAttr("disabled");
                 }
 
-                if (client.state.id == 6 || client.state.id == 7 || stock.localeCompare("") == 0 || ramp.localeCompare("") == 0) {
+                if (client.state.id === 6 || client.state.id === 7) {
                     $('#callBtn').attr("disabled", true);
+                    $('#enterBtn').attr("disabled", true);
                     $('#arrivedBtn').attr("disabled", true);
                     $('#servedBtn').attr("disabled", true);
                     $('#returnBtn').attr("disabled", true);
+                    $('#leaveBtn').attr("disabled", true);
+                }
+
+                if (stock !== undefined && ramp !== undefined) {
+                    if (stock.localeCompare("") === 0 || ramp.localeCompare("") === 0) {
+                        $('#callBtn').attr("disabled", true);
+                        $('#enterBtn').attr("disabled", true);
+                        $('#arrivedBtn').attr("disabled", true);
+                        $('#servedBtn').attr("disabled", true);
+                        $('#returnBtn').attr("disabled", true);
+                        $('#leaveBtn').attr("disabled", true);
+                    }
                 }
             }
         });
@@ -174,8 +232,13 @@ function checkCarNajax() {
 }
 function serviceBtnJs(value) {
     var carN = document.getElementById("carNumberInputId").value;
-    var stock = document.getElementById("selectStockId").value;
-    var ramp = document.getElementById("selectRampId").value;
+
+    var stock="";
+    var ramp="";
+    try {
+        stock = document.getElementById("selectStockId").value;
+        ramp = document.getElementById("selectRampId").value;
+    }catch (err){}
 
     var servedValue = locale['operator.trControl.servedBtn'];
     var returnValue = locale['operator.trControl.returnBtn'];
@@ -187,25 +250,31 @@ function serviceBtnJs(value) {
         contentType: "application/json; charset=UTF-8",
         url: "/avgustBel/trControlOperationBtns-" + carN + "-" + stock + "-" + ramp + "-" + btn,
         success: function (client) {
-            update(currentPageId, currentTotal);
+            update(currentPageId, currentTotal,destination);
             $('#trCntrlMes').empty();
+            var bodyMes;
+            if (client.state.id === 6) {
 
-            if (client.state.id == 6) {
-
-                var bodyMes = dangerDiv + imgAlert + client.msg + '</div>'
+                bodyMes = dangerDiv + imgAlert + client.msg + '</div>';
                 $('#trCntrlMes').append(bodyMes);
 
                 return;
-            } else if (client.state.id == 7) {
+            } else if (client.state.id === 7) {
 
-                var bodyMes = infoDiv + imgInfo + client.msg + '</div>'
+                bodyMes = infoDiv + imgInfo + client.msg + '</div>';
+                $('#trCntrlMes').append(bodyMes);
+
+                return;
+            }else if (client.state.id === 9) {
+
+                bodyMes = successDiv + imgOk + client.msg + '</div>';
                 $('#trCntrlMes').append(bodyMes);
 
                 return;
             }
 
-            if (btn.localeCompare(servedValue) == 0 || btn.localeCompare(returnValue) == 0) {
-                var bodyMes = successDiv + imgOk + client.msg + '</div>'
+            if (btn.localeCompare(servedValue) === 0 || btn.localeCompare(returnValue) === 0) {
+                bodyMes = successDiv + imgOk + client.msg + '</div>';
                 $('#trCntrlMes').append(bodyMes);
 
                 $('#servedBtn').attr("disabled", true);
@@ -216,22 +285,6 @@ function serviceBtnJs(value) {
         }
     });
 }
-
-
-/* *********************DATA OPERATION********************** */
-function writeExcelFile() {
-    var dataFrom = document.getElementById("datetimepickerFrom").value;
-    var dataTo = document.getElementById("datetimepickerTo").value;
-
-    if (dataFrom.localeCompare("") == 0 || dataTo.localeCompare("") == 0) {
-
-        $('#writeToExcelBtn').attr("disabled", true);
-    }
-    else if (dataFrom.localeCompare("") != 0 && dataTo.localeCompare("") != 0) {
-        $('#writeToExcelBtn').removeAttr("disabled");
-    }
-}
-
 function selectStock() {
     var selStock = document.getElementById("selectStockId");
     var selectedStock = selStock.options[selStock.selectedIndex].value;
@@ -240,7 +293,7 @@ function selectStock() {
 
     var selectRampBody = '<option value="">' + locale['operator.selectRamp'] + '</option>';
 
-    if (selectedStock.localeCompare("") == 0) {
+    if (selectedStock.localeCompare("") === 0) {
         $('#selectRampId').attr("disabled", true);
 
     }
@@ -250,20 +303,23 @@ function selectStock() {
         var stock = parseInt(selectedStock);
 
         switch (stock) {
+            case 0:
+                ramp = 0;
+                break;
             case 1:
-                ramp = 8
+                ramp = 8;
                 break;
             case 2:
-                ramp = 8
+                ramp = 8;
                 break;
             case 3:
-                ramp = 7
+                ramp = 7;
                 break;
             case 4:
-                ramp = 2
+                ramp = 2;
                 break;
             case 5:
-                ramp = 5
+                ramp = 5;
                 break;
         }
 
@@ -271,13 +327,19 @@ function selectStock() {
         for (i = 1; i <= ramp; i++) {
             selectRampBody += '<option value="' + i + '">' + rampN + i + '</option>';
         }
+        if(ramp === 0)
+            selectRampBody = '<option value="0">Вне очереди</option>';
+
     }
     $('#selectRampId').append(selectRampBody);
 
-    checkCarNajax();
+    //checkCarNajax();
 
 }
 
 function selectRamp() {
     checkCarNajax();
-};
+}
+
+
+

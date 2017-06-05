@@ -1,8 +1,10 @@
 package spring.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.ModelAndView;
 import spring.dao.ClientArchDao;
 import spring.entity.Client;
 import spring.entity.ClientArchive;
@@ -10,13 +12,14 @@ import spring.entity.State;
 import spring.service.infoTable.ConnectionSingleton;
 import spring.service.infoTable.InfoTable;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Transactional
 @Service
-public class OperatorService extends BaseService{
+public class OperatorService extends BaseService {
 
     private ClientService clientService;
 
@@ -45,14 +48,14 @@ public class OperatorService extends BaseService{
         return client;
     }
 
-    public Map<String, Object> getClientInfoForTableRefresh(String pageId, String total, Locale locale) {
+    public Map<String, Object> getClientInfoForTableRefresh(String pageId, String total, String destination, Locale locale) {
         int pageIdInt = Integer.parseInt(pageId);
         int totalInt = Integer.parseInt(total);
         int offset = (pageIdInt - 1) * totalInt;
 
         Map<String, Object> map = new HashMap<String, Object>();
         try {
-            map.put("clientList", clientDao.getClientList(offset, totalInt, locale));
+            map.put("clientList", clientDao.getClientList(offset, totalInt,destination, locale));
             map.put("clientCount", clientDao.getTotalClientCount(locale));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -79,6 +82,18 @@ public class OperatorService extends BaseService{
                 }
                 else if (client.getState().getId() == 3) {
                     client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarN()}, locale));
+                }
+                else if (client.getState().getId() == 4) {
+                    client.setMsg(messageSource.getMessage("client.isServed", new String[]{client.getCarN()}, locale));
+                }
+                else if (client.getState().getId() == 5) {
+                    client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarN()}, locale));
+                }
+                else if (client.getState().getId() == 8) {
+                    client.setMsg(messageSource.getMessage("client.isEntered", new String[]{client.getCarN()}, locale));
+                }
+                else if (client.getState().getId() == 9) {
+                    client.setMsg(messageSource.getMessage("client.isLeaved", new String[]{client.getCarN()}, locale));
                 }
             }
             else {
@@ -114,144 +129,152 @@ public class OperatorService extends BaseService{
 
         Map<String, Client> mapClient = MapClientSingleton.getInstance().getMapClient();
 
-        if (btnValue.equals(messageSource.getMessage("operator.trControl.callBtn", null, locale))) {
-            if (mapClient.size() < 4) {
-                client.setStock(stock);
-                client.setRamp(ramp);
-                client.setCallTime(dateFormat.format(new Date()));
-                client.setArrivedTime("");
-                client.setServedTime("");
-                client.setReturnTime("");
-
+        switch (btnValue) {
+            case "callBtn":
+                if (mapClient.size() < 4) {
+                    client.setStock(stock);
+                    client.setRamp(ramp);
+                    client.setCallTime(dateFormat.format(new Date()));
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ОТОБРАЖЕНИЕ ИНФОРМАЦИИ НА ТАБЛО****************************************/
-                mapClient.put(client.getCarN(), client);
+                    mapClient.put(client.getCarN(), client);
 
-                client = updateTable(mapClient, client);
-                if (client.getState().getId() == 6)
-                    return client;
+                    client = updateTable(mapClient, client);
+                    if (client.getState().getId() == 6)
+                        return client;
 //********************************************************************************************
-                try {
-                    client.setState(stateDao.getStateById(2));
-                    clientDao.updateClient(client);
-                    client.setMsg(messageSource.getMessage("client.isCalled", new String[]{client.getCarN()}, locale));
+                    try {
+                        client.setState(stateDao.getStateById(2));
+                        clientDao.updateClient(client);
+                        client.setMsg(messageSource.getMessage("client.isCalled", new String[]{client.getCarN()}, locale));
 
-                } catch (Exception ex) {
-                    mapClient.remove(client.getCarN());
-                    MapClientSingleton.getInstance().setMapClient(mapClient);
+                    } catch (Exception ex) {
+                        mapClient.remove(client.getCarN());
+                        MapClientSingleton.getInstance().setMapClient(mapClient);
 
-                    return dbError("client.isNOTCalled", client.getCarN(), ex, locale);
+                        return dbError("client.isNOTCalled", client.getCarN(), ex, locale);
+                    }
                 }
-            }
-            else {
-                client.setMsg(messageSource.getMessage("client.maxCalledClientCountInQueque", null, locale));
-                client.setState(stateDao.getStateById(7));
-                return client;
-            }
-        }
-
-        else if (btnValue.equals(messageSource.getMessage("operator.trControl.arrivedBtn", null, locale))) {
-
-            client.setArrivedTime(dateFormat.format(new Date()));
-            client.setServedTime("");
-            client.setReturnTime("");
+                else {
+                    client.setMsg(messageSource.getMessage("client.maxCalledClientCountInQueque", null, locale));
+                    client.setState(stateDao.getStateById(7));
+                    return client;
+                }
+                break;
+            case "arrivedBtn":
+                client.setArrivedTime(dateFormat.format(new Date()));
 
             /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ИНФОРМАЦИЯ С ТАБЛО ИСЧЕЗАЕТ*/
-            mapClient.remove(client.getCarN());
+                mapClient.remove(client.getCarN());
             /*очистка всего экрана*/
-            client = clearTable(client);
+                client = clearTable(client);
 
-            if (client.getState().getId() == 6) {
-                mapClient.put(client.getCarN(), client);
-                return client;
-            }
-            //`~~~~~~~~~~~~~~~~~~~~
-            client = updateTable(mapClient, client);
-            if (client.getState().getId() == 6) {
-                mapClient.put(client.getCarN(), client);
-                return client;
-            }
+                if (client.getState().getId() == 6) {
+                    mapClient.put(client.getCarN(), client);
+                    return client;
+                }
+                //`~~~~~~~~~~~~~~~~~~~~
+                client = updateTable(mapClient, client);
+                if (client.getState().getId() == 6) {
+                    mapClient.put(client.getCarN(), client);
+                    return client;
+                }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-            try {
-                client.setState(stateDao.getStateById(3));
-                clientDao.updateClient(client);
-                client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarN()}, locale));
-            } catch (Exception ex) {
-                return dbError("client.isNOTArrived", client.getCarN(), ex, locale);
-            }
-        }
+                try {
+                    client.setState(stateDao.getStateById(3));
+                    clientDao.updateClient(client);
+                    client.setMsg(messageSource.getMessage("client.isArrived", new String[]{client.getCarN()}, locale));
+                } catch (Exception ex) {
+                    return dbError("client.isNOTArrived", client.getCarN(), ex, locale);
+                }
+                break;
+            case "servedBtn":
+                client.setServedTime(dateFormat.format(new Date()));
 
-        else if (btnValue.equals(messageSource.getMessage("operator.trControl.servedBtn", null, locale))) {
+                try {
+                    client.setState(stateDao.getStateById(4));
+                    clientDao.updateClient(client);
+                    client.setMsg(messageSource.getMessage("client.isServed", new String[]{client.getCarN()}, locale));
 
-            client.setServedTime(dateFormat.format(new Date()));
-            client.setReturnTime("");
+                } catch (Exception ex) {
+                    return dbError("client.isNOTServed", client.getCarN(), ex, locale);
+                }
+                break;
+            case "returnBtn":
+                client.setReturnTime(dateFormat.format(new Date()));
 
-            try {
-                client.setState(stateDao.getStateById(4));
-                clientDao.updateClient(client);
-                client.setMsg(messageSource.getMessage("client.isServed", new String[]{client.getCarN()}, locale));
+                try {
 
-                clientDao.deleteClient(client, locale);
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
-                ClientArchive clientArchive = new ClientArchive();
-                clientArchive.setArrivedTime(client.getArrivedTime());
-                clientArchive.setCallTime(client.getCallTime());
-                clientArchive.setCarN(client.getCarN());
-                clientArchive.setCompany(client.getCompany());
-                clientArchive.setDestination(client.getDestination());
-                clientArchive.setPhoneN(client.getPhoneN());
-                clientArchive.setRamp(client.getRamp());
-                clientArchive.setRegTime(client.getRegTime());
-                clientArchive.setReturnTime(client.getReturnTime());
-                clientArchive.setServedTime(client.getServedTime());
-                clientArchive.setState(client.getState());
-                clientArchive.setStock(client.getStock());
-
-                clientArchDao.addClientToArch(clientArchive, locale);
-
-            } catch (Exception ex) {
-                return dbError("client.isNOTServed", client.getCarN(), ex, locale);
-            }
-        }
-        else if (btnValue.equals(messageSource.getMessage("operator.trControl.returnBtn", null, locale))) {
-
-            client.setReturnTime(dateFormat.format(new Date()));
-
-            try {
-
-                clientDao.updateClient(client);
+                    clientDao.updateClient(client);
 
 
-                clientDao.deleteClient(client, locale);
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
-                ClientArchive clientArchive = new ClientArchive();
-                clientArchive.setArrivedTime(client.getArrivedTime());
-                clientArchive.setCallTime(client.getCallTime());
-                clientArchive.setCarN(client.getCarN());
-                clientArchive.setCompany(client.getCompany());
-                clientArchive.setDestination(client.getDestination());
-                clientArchive.setPhoneN(client.getPhoneN());
-                clientArchive.setRamp(client.getRamp());
-                clientArchive.setRegTime(client.getRegTime());
-                clientArchive.setReturnTime(client.getReturnTime());
-                clientArchive.setServedTime(client.getServedTime());
-                clientArchive.setState(client.getState());
-                clientArchive.setStock(client.getStock());
+                    clientDao.deleteClient(client, locale);
+                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
 
-                clientArchDao.addClientToArch(clientArchive, locale);
+                    clientArchDao.addClientToArch(clientCopyToArchive(client), locale);
 
                   /*Помещение клиента в конец списка ожидания*/
-                client = clientService.clientRegistration(client, locale);
-                client.setState(stateDao.getStateById(5));
-                client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarN()}, locale));
+                    client = clientService.clientRegistration(client, locale);
+                    client.setState(stateDao.getStateById(5));
+                    client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarN()}, locale));
 
-            } catch (Exception ex) {
-                return dbError("client.isNOTReturned", client.getCarN(), ex, locale);
-            }
+                } catch (Exception ex) {
+                    return dbError("client.isNOTReturned", client.getCarN(), ex, locale);
+                }
+                break;
+            case "enterBtn":
+                client.setEnterTime(dateFormat.format(new Date()));
+                try {
+                    client.setState(stateDao.getStateById(8));
+                    if (client.getRamp().equals(""))
+                        client.setRamp("0");
+                    if (client.getStock().equals(""))
+                        client.setStock("0");
+                    clientDao.updateClient(client);
+                    client.setMsg(messageSource.getMessage("client.isEntered", new String[]{client.getCarN()}, locale));
+                } catch (Exception ex) {
+                    return dbError("client.isNOTEntered", client.getCarN(), ex, locale);
+                }
+                break;
+            case "leaveBtn":
+                client.setLeaveTime(dateFormat.format(new Date()));
+                try {
+                    client.setState(stateDao.getStateById(9));
+                    clientDao.updateClient(client);
+                    client.setMsg(messageSource.getMessage("client.isLeaved", new String[]{client.getCarN()}, locale));
+
+                    clientDao.deleteClient(client, locale);
+                    clientArchDao.addClientToArch(clientCopyToArchive(client), locale);
+
+                } catch (Exception ex) {
+                    return dbError("client.isNOTLeaved", client.getCarN(), ex, locale);
+                }
+                break;
         }
 
         return client;
+    }
+
+    private ClientArchive clientCopyToArchive(Client client) {
+
+        ClientArchive clientArchive = new ClientArchive();
+        clientArchive.setArrivedTime(client.getArrivedTime());
+        clientArchive.setCallTime(client.getCallTime());
+        clientArchive.setCarN(client.getCarN());
+        clientArchive.setCompany(client.getCompany());
+        clientArchive.setDestination(client.getDestination());
+        clientArchive.setPhoneN(client.getPhoneN());
+        clientArchive.setRamp(client.getRamp());
+        clientArchive.setRegTime(client.getRegTime());
+        clientArchive.setReturnTime(client.getReturnTime());
+        clientArchive.setServedTime(client.getServedTime());
+        clientArchive.setState(client.getState());
+        clientArchive.setStock(client.getStock());
+        clientArchive.setEnterTime(client.getEnterTime());
+        clientArchive.setLeaveTime(client.getLeaveTime());
+
+        return clientArchive;
     }
 
     private Client updateTable(Map<String, Client> mapClient, Client client) {
@@ -303,6 +326,30 @@ public class OperatorService extends BaseService{
 
         return client;
     }
+
+     public ModelAndView getClientListFromArchive(HttpServletRequest request, Locale locale){
+         String from = request.getParameter("fromInput");
+         String to = request.getParameter("toInput");
+         ModelAndView model = new ModelAndView("operator/dataOperations");
+         try{
+             model.addObject("clientListFromArchive",clientArchDao.getClientListfromArch(from, to, locale));
+         }catch (Exception ex){
+
+         }
+         model.addObject("from", from);
+         model.addObject("to",to);
+         return model;
+     }
+   /* public Map<String, Object> getClientListFromArchive(String from, String to, Locale locale) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            map.put("clientListFromArchive", clientArchDao.getClientListfromArch(from, to, locale));
+        } catch (Exception ex) {
+            map.put("from", from);
+            map.put("to", to);
+        }
+        return map;
+    }*/
 }
 
 class MapClientSingleton {

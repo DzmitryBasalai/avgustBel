@@ -22,11 +22,14 @@
         locale['operator.trControlTable.carRegN'] = "<spring:message code='operator.trControlTable.carRegN' javaScriptEscape='true' />";
         locale['operator.trControlTable.phoneN'] = "<spring:message code='operator.trControlTable.phoneN' javaScriptEscape='true' />";
         locale['operator.trControlTable.destination'] = "<spring:message code='operator.trControlTable.destination' javaScriptEscape='true' />";
-        locale['operator.trControl.orderN'] = "<spring:message code='operator.trControl.orderN' javaScriptEscape='true' />";
+        locale['client.company'] = "<spring:message code='client.company' javaScriptEscape='true' />";
         locale['operator.trControlTable.regTime'] = "<spring:message code='operator.trControlTable.regTime' javaScriptEscape='true' />";
         locale['operator.trControlTable.callTime'] = "<spring:message code='operator.trControlTable.callTime' javaScriptEscape='true' />";
         locale['operator.trControl.stock'] = "<spring:message code='operator.trControl.stock' javaScriptEscape='true' />";
         locale['operator.trControl.ramp'] = "<spring:message code='operator.trControl.ramp' javaScriptEscape='true' />";
+
+        locale['operator.trControlTable.enteredTime'] = "<spring:message code='operator.trControlTable.enterTime' javaScriptEscape='true' />";
+
         locale['operator.trControlTable.arriveTime'] = "<spring:message code='operator.trControlTable.arriveTime' javaScriptEscape='true' />";
         locale['operator.trControlTable.servedTime'] = "<spring:message code='operator.trControlTable.servedTime' javaScriptEscape='true' />";
         locale['operator.trControlTable.returnTime'] = "<spring:message code='operator.trControlTable.returnTime' javaScriptEscape='true' />";
@@ -58,86 +61,101 @@
         <div class="col-sm-3 " style="width: 20%; min-height: 86%;">
             <h4><spring:message code="operatorIndex.transportControl"/></h4>
 
-            <form method="POST" id="trControlFormId">
-                <fieldset>
+            <fieldset>
+                <div>
+                    <spring:message code="operator.trControlTable.carRegN" var="carNum"/>
+                    <label class="control-label">
+                        <img border="0" src="/avgustBel/resources/images/car.png"> ${carNum}</label>
+                    <input
+                            title="${carNum}"
+                            placeholder="${carNum}"
+                            onkeyup="checkCarNajax()"
+                            class="form-control"
+                            id="carNumberInputId"
+                            data-placement="bottom"/>
+                </div>
+                <br>
+                <c:if test="${pageContext.request.isUserInRole('ROLE_ADMIN')||pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')||pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD')}">
                     <div>
-                        <spring:message code="operator.trControlTable.carRegN" var="carNum"/>
+                        <spring:message code="operator.trControl.stock" var="stock"/>
                         <label class="control-label">
-                            <img border="0" src="/avgustBel/resources/images/car.png"> ${carNum}</label>
-                        <input
-                                title="${carNum}"
-                                placeholder="${carNum}"
-                                onkeyup="checkCarNajax()"
-                                class="form-control"
-                                id="carNumberInputId"
-                                data-placement="bottom"/>
+                            <img border="0" src="/avgustBel/resources/images/stock.png"> ${stock}</label>
+
+                        <spring:message code="operator.stockN" var="stockN"/>
+                        <select class="form-control" id="selectStockId" onchange="selectStock()">
+                            <option value=""><spring:message code="operator.selectStock"/></option>
+                            <option value="0">Вне очереди</option>
+                            <option value="1">${stockN}1</option>
+                            <option value="2">${stockN}2</option>
+                            <option value="3">${stockN}3</option>
+                            <option value="4">${stockN}4</option>
+                            <option value="5">${stockN}5</option>
+                        </select>
                     </div>
                     <br>
-                    <c:if test="${pageContext.request.isUserInRole('ROLE_ADMIN')||pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')||pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD')}">
-                        <div>
-                            <spring:message code="operator.trControl.stock" var="stock"/>
-                            <label class="control-label">
-                                <img border="0" src="/avgustBel/resources/images/stock.png"> ${stock}</label>
 
-                            <spring:message code="operator.stockN" var="stockN"/>
-                            <select class="form-control" id="selectStockId" onchange="selectStock()">
-                                <option value=""><spring:message code="operator.selectStock"/></option>
-                                <option value="1">${stockN}1</option>
-                                <option value="2">${stockN}2</option>
-                                <option value="3">${stockN}3</option>
-                                <option value="4">${stockN}4</option>
-                                <option value="5">${stockN}5</option>
-                            </select>
-                        </div>
-                        <br>
+                    <div>
+                        <spring:message code="operator.trControl.ramp" var="ramp"/>
+                        <label class="control-label">
+                            <img border="0" src="/avgustBel/resources/images/ramp.png"> ${ramp}</label>
 
-                        <div>
-                            <spring:message code="operator.trControl.ramp" var="ramp"/>
-                            <label class="control-label">
-                                <img border="0" src="/avgustBel/resources/images/ramp.png"> ${ramp}</label>
-
-                            <select class="form-control" id="selectRampId" disabled onchange="selectRamp()">
-                                <option value=""><spring:message code="operator.selectRamp"/></option>
-                            </select>
-                        </div>
-                    </c:if>
-                </fieldset>
-            </form>
+                        <select class="form-control" id="selectRampId" disabled onchange="selectRamp()">
+                            <option value=""><spring:message code="operator.selectRamp"/></option>
+                        </select>
+                    </div>
+                    <br/>
+                </c:if>
+            </fieldset>
 
             <c:if test="${pageContext.request.isUserInRole('ROLE_ADMIN')||pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')||pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD')}">
                 <div>
                     <input type="submit" name="callBtn" value="<spring:message code="operator.trControl.callBtn"/>"
-                           id="callBtn" disabled onclick="serviceBtnJs(this.value)" class="btn btn-info btn-block">
-                </div>
-                <br>
-                <div>
-                    <input type="submit" name="arrivedBtn"
-                           value="<spring:message code="operator.trControl.arrivedBtn"/>"
-                           id="arrivedBtn" disabled onclick="serviceBtnJs(this.value)" class="btn btn-info btn-block">
-                </div>
-                <br>
-                <div>
-                    <input type="submit" name="servedBtn" value="<spring:message code="operator.trControl.servedBtn"/>"
-                           id="servedBtn" disabled onclick="serviceBtnJs(this.value)" class="btn btn-info btn-block">
-                </div>
-                <br/>
-                <div>
-                    <input type="submit" name="returnBtn" value="<spring:message code="operator.trControl.returnBtn"/>"
-                           id="returnBtn" disabled onclick="serviceBtnJs(this.value)" class="btn btn-info btn-block">
+                           id="callBtn" disabled onclick="serviceBtnJs(this.name)" class="btn btn-info btn-block">
                 </div>
                 <br/>
             </c:if>
 
             <c:if test="${pageContext.request.isUserInRole('ROLE_SECURITY') || pageContext.request.isUserInRole('ROLE_ADMIN')}">
+
                 <div>
                     <input type="submit" name="enterBtn" value="<spring:message code="operator.trControl.enterBtn"/>"
-                           id="enterBtn" disabled onclick="serviceBtnJs(this.value)" class="btn btn-info btn-block">
+                           id="enterBtn" disabled onclick="serviceBtnJs(this.name)" class="btn btn-info btn-block">
                 </div>
+                <br/>
             </c:if>
+
+            <c:if test="${pageContext.request.isUserInRole('ROLE_ADMIN')||pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')||pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD')}">
+                <div>
+                    <input type="submit" name="arrivedBtn"
+                           value="<spring:message code="operator.trControl.arrivedBtn"/>"
+                           id="arrivedBtn" disabled onclick="serviceBtnJs(this.name)" class="btn btn-info btn-block">
+                </div>
+                <br/>
+                <div>
+                    <input type="submit" name="servedBtn" value="<spring:message code="operator.trControl.servedBtn"/>"
+                           id="servedBtn" disabled onclick="serviceBtnJs(this.name)" class="btn btn-info btn-block">
+                </div>
+                <br/>
+                <div>
+                    <input type="submit" name="returnBtn" value="<spring:message code="operator.trControl.returnBtn"/>"
+                           id="returnBtn" disabled onclick="serviceBtnJs(this.name)" class="btn btn-info btn-block">
+                </div>
+                <br/>
+            </c:if>
+
+
+            <c:if test="${pageContext.request.isUserInRole('ROLE_SECURITY') || pageContext.request.isUserInRole('ROLE_ADMIN')}">
+                <div>
+                    <input type="submit" name="leaveBtn" value="<spring:message code="operator.trControl.leaveBtn"/>"
+                           id="leaveBtn" disabled onclick="serviceBtnJs(this.name)" class="btn btn-info btn-block">
+                </div>
+                <br/>
+            </c:if>
+
         </div>
 
 
-        <div class="col-sm-9" style="min-width: 80%; height: auto;">
+        <div class="col-sm-9" style="height: auto;">
             <h4>
                 <small><spring:message code="client.queue"/>
                     <span id="clientsCount"></span>
@@ -159,7 +177,7 @@
             <div id="divPagination" class="pagination" style="padding: 0px 5px 5px 10px;"></div>
             <br/>
 
-            <table id="table" class="responstable">
+            <table id="table" class="responstable" style="width: 95%">
             </table>
 
         </div>
@@ -168,6 +186,26 @@
     <jsp:include page="/WEB-INF/views/operator/footer.jsp"/>
 
 </div>
+
+
+<c:if test="${pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')}">
+
+    <script type="text/javascript">
+        setDestinatuion("load");
+    </script>
+</c:if>
+<c:if test="${pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD')}">
+    <script type="text/javascript">
+        setDestinatuion("unload");
+    </script>
+</c:if>
+<c:if test="${pageContext.request.isUserInRole('ROLE_SECURITY') || pageContext.request.isUserInRole('ROLE_ADMIN')}">
+
+    <script type="text/javascript">
+    setDestinatuion("all");
+    </script>
+</c:if>
+
 
 </body>
 </html>
