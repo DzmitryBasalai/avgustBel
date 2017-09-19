@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS avgustbeldb.car_archive (
 )
   ENGINE InnoDB;
 
-CREATE TABLE IF NOT EXISTS avgustbeldb.users (
+CREATE TABLE IF NOT EXISTS avgustbeldb.user (
   username VARCHAR(45) NOT NULL,
   password VARCHAR(60) NOT NULL,
   enabled  TINYINT     NOT NULL DEFAULT 1,
@@ -73,24 +73,24 @@ CREATE TABLE IF NOT EXISTS avgustbeldb.users (
 )
   ENGINE InnoDB;
 
-INSERT INTO avgustbeldb.users (username, password, enabled) VALUES
-  ('admin', '$2a$10$Xi/hyIsAQFt7PnmFnLU23.VfMJKRBJwqZwG51QDA6qcgRa2wphrTK', TRUE),
-  ('operator_load', '$2a$10$tHDyAjiLNcFyql.NUFcYIuAb0vCxHI0Z1zCmnKTpJ.jRmEGW.Jmdi', TRUE),
-  ('operator_unload', '$2a$10$0MtVOylFVHnLbpCN2AqFGuTUxNaLqkQsgCAOOYTDpU1Fi7PMT5NRq', TRUE),
-  ('security', '$2a$10$KcaJ4v8aKnfYtRhcEw1anuC5kTbyHxaioMsFqbayoX2Gb4gsC23eC', TRUE);
+INSERT INTO avgustbeldb.user (username, password,enabled) VALUES
+  ('admin', '$2a$10$Xi/hyIsAQFt7PnmFnLU23.VfMJKRBJwqZwG51QDA6qcgRa2wphrTK',TRUE ),
+  ('operator_load', '$2a$10$tHDyAjiLNcFyql.NUFcYIuAb0vCxHI0Z1zCmnKTpJ.jRmEGW.Jmdi',TRUE),
+  ('operator_unload', '$2a$10$0MtVOylFVHnLbpCN2AqFGuTUxNaLqkQsgCAOOYTDpU1Fi7PMT5NRq',TRUE),
+  ('security', '$2a$10$KcaJ4v8aKnfYtRhcEw1anuC5kTbyHxaioMsFqbayoX2Gb4gsC23eC',TRUE);
 
-CREATE TABLE IF NOT EXISTS avgustbeldb.user_roles (
-  user_role_id INT(11)     NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS avgustbeldb.user_role (
+  user_role_id INT(11) NOT NULL AUTO_INCREMENT,
   username     VARCHAR(45) NOT NULL,
   role         VARCHAR(45) NOT NULL,
   PRIMARY KEY (user_role_id),
   UNIQUE KEY uni_username_role (role, username),
   KEY fk_username_idx (username),
-  CONSTRAINT fk_username FOREIGN KEY (username) REFERENCES users (username)
+  CONSTRAINT fk_username FOREIGN KEY (username) REFERENCES user (username)
 )
   ENGINE InnoDB;
 
-INSERT INTO avgustbeldb.user_roles (username, role) VALUES
+INSERT INTO avgustbeldb.user_role (username, role) VALUES
   ('admin', 'ROLE_ADMIN'),
   ('admin', 'ROLE_OPERATOR_LOAD'),
   ('admin', 'ROLE_OPERATOR_UNLOAD'),

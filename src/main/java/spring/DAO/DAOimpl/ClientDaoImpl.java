@@ -1,11 +1,15 @@
 package spring.dao.daoImpl;
 
+import org.apache.xmlbeans.impl.xb.xsdschema.RestrictionDocument;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import spring.dao.ClientDao;
 import spring.entity.Client;
+import spring.entity.State;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -32,7 +36,7 @@ public class ClientDaoImpl extends BaseDao implements ClientDao {
 
     @Transactional
     @Override
-    public int getTotalClientCount(Locale locale) throws Exception {
+    public int getTotalClientCount(Locale locale, String destination) throws Exception {
         try {
 
             //Open Session
@@ -45,7 +49,31 @@ public class ClientDaoImpl extends BaseDao implements ClientDao {
             CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
 
             Root<Client> root = criteria.from(Client.class);
-            criteria.select(builder.count(root));
+
+            if(destination.equals("all")){
+                criteria.select(builder.count(root));
+            }
+            if(destination.equals("load")){
+                criteria.select(builder.count(root)).where(builder.equal(root.get("destination"), "загрузка"));;
+            }
+            if(destination.equals("unload")){
+                criteria.select(builder.count(root)).where(builder.equal(root.get("destination"), "разгрузка"));;
+            }
+            if(destination.equals("security")){
+               List<Client> clientList = session.createQuery("Select c From Client c where state.state='зарег.' or state.state='вызван' or state.state='обслужен'").getResultList();
+                session.close();
+               return clientList.size();
+            }
+            if(destination.equals("securityAndUnload")){
+                List<Client> clientList = session.createQuery("Select c From Client c where state.state='зарег.' or state.state='вызван' or state.state='обслужен' or destination='разгрузка'").getResultList();
+                session.close();
+                return clientList.size();
+            }
+            if(destination.equals("securityAndLoad")){
+                List<Client> clientList = session.createQuery("Select c From Client c where state.state='зарег.' or state.state='вызван' or state.state='обслужен' or destination='загрузка'").getResultList();
+                session.close();
+                return clientList.size();
+            }
 
             //Use criteria to query with session to fetch all contacts
             int count = (session.createQuery(criteria).getSingleResult()).intValue();
@@ -109,19 +137,31 @@ public class ClientDaoImpl extends BaseDao implements ClientDao {
                 criteriaQuery.select(root);
             }
             if(destination.equals("load")){
-                criteriaQuery.select(root).where(builder.equal(root.get("destination"), "загрузка"));;
+                criteriaQuery.select(root).where(builder.equal(root.get("destination"), "загрузка"));
             }
             if(destination.equals("unload")){
-                criteriaQuery.select(root).where(builder.equal(root.get("destination"), "разгрузка"));;
+                criteriaQuery.select(root).where(builder.equal(root.get("destination"), "разгрузка"));
             }
-            //Use criteriaQuery to query with session to fetch all contacts
+            if(destination.equals("security")){
+                List<Client> clientList = session.createQuery("Select c From Client c where state.state='зарег.' or state.state='вызван' or state.state='обслужен'").setFirstResult(offset).setMaxResults(total).getResultList();
+                session.close();
+                return clientList;
+            }
+            if(destination.equals("securityAndUnload")){
+                List<Client> clientList = session.createQuery("Select c From Client c where state.state='зарег.' or state.state='вызван' or state.state='обслужен' or destination='разгрузка'").setFirstResult(offset).setMaxResults(total).getResultList();
+                session.close();
+                return clientList;
+            }
+            if(destination.equals("securityAndLoad")){
+                List<Client> clientList = session.createQuery("Select c From Client c where state.state='зарег.' or state.state='вызван' or state.state='обслужен' or destination='загрузка'").setFirstResult(offset).setMaxResults(total).getResultList();
+                session.close();
+                return clientList;
+            }
+
             List<Client> clientList = session.createQuery(criteriaQuery)
                     .setFirstResult(offset).setMaxResults(total)
                     .getResultList();
 
-
-
-            //Close session
             session.close();
 
             return clientList;

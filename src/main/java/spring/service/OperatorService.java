@@ -55,8 +55,8 @@ public class OperatorService extends BaseService {
 
         Map<String, Object> map = new HashMap<String, Object>();
         try {
-            map.put("clientList", clientDao.getClientList(offset, totalInt,destination, locale));
-            map.put("clientCount", clientDao.getTotalClientCount(locale));
+            map.put("clientList", clientDao.getClientList(offset, totalInt, destination, locale));
+            map.put("clientCount", clientDao.getTotalClientCount(locale, destination));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -164,22 +164,24 @@ public class OperatorService extends BaseService {
             case "arrivedBtn":
                 client.setArrivedTime(dateFormat.format(new Date()));
 
-            /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ИНФОРМАЦИЯ С ТАБЛО ИСЧЕЗАЕТ*/
-                mapClient.remove(client.getCarN());
+                if (null!=mapClient.get(client.getCarN())) {
+                   /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ИНФОРМАЦИЯ С ТАБЛО ИСЧЕЗАЕТ*/
+                    mapClient.remove(client.getCarN());
             /*очистка всего экрана*/
-                client = clearTable(client);
+                    client = clearTable(client);
 
-                if (client.getState().getId() == 6) {
-                    mapClient.put(client.getCarN(), client);
-                    return client;
+                    if (client.getState().getId() == 6) {
+                        mapClient.put(client.getCarN(), client);
+                        return client;
+                    }
+                    //`~~~~~~~~~~~~~~~~~~~~
+                    client = updateTable(mapClient, client);
+                    if (client.getState().getId() == 6) {
+                        mapClient.put(client.getCarN(), client);
+                        return client;
+                    }
+                /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
                 }
-                //`~~~~~~~~~~~~~~~~~~~~
-                client = updateTable(mapClient, client);
-                if (client.getState().getId() == 6) {
-                    mapClient.put(client.getCarN(), client);
-                    return client;
-                }
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
                 try {
                     client.setState(stateDao.getStateById(3));
@@ -206,18 +208,16 @@ public class OperatorService extends BaseService {
 
                 try {
 
-                    clientDao.updateClient(client);
-
-
+                    //clientDao.updateClient(client);
                     clientDao.deleteClient(client, locale);
                     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ДОБАВЛЕНИЕ КЛИЕНТА В АРХИВ!
+                    client.setState(stateDao.getStateById(5));
+                    client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarN()}, locale));
 
                     clientArchDao.addClientToArch(clientCopyToArchive(client), locale);
 
                   /*Помещение клиента в конец списка ожидания*/
                     client = clientService.clientRegistration(client, locale);
-                    client.setState(stateDao.getStateById(5));
-                    client.setMsg(messageSource.getMessage("client.isReturned", new String[]{client.getCarN()}, locale));
 
                 } catch (Exception ex) {
                     return dbError("client.isNOTReturned", client.getCarN(), ex, locale);
@@ -327,29 +327,19 @@ public class OperatorService extends BaseService {
         return client;
     }
 
-     public ModelAndView getClientListFromArchive(HttpServletRequest request, Locale locale){
-         String from = request.getParameter("fromInput");
-         String to = request.getParameter("toInput");
-         ModelAndView model = new ModelAndView("operator/dataOperations");
-         try{
-             model.addObject("clientListFromArchive",clientArchDao.getClientListfromArch(from, to, locale));
-         }catch (Exception ex){
-
-         }
-         model.addObject("from", from);
-         model.addObject("to",to);
-         return model;
-     }
-   /* public Map<String, Object> getClientListFromArchive(String from, String to, Locale locale) {
-        Map<String, Object> map = new HashMap<>();
+    public ModelAndView getClientListFromArchive(HttpServletRequest request, Locale locale) {
+        String from = request.getParameter("fromInput");
+        String to = request.getParameter("toInput");
+        ModelAndView model = new ModelAndView("operator/dataOperations");
         try {
-            map.put("clientListFromArchive", clientArchDao.getClientListfromArch(from, to, locale));
+            model.addObject("clientListFromArchive", clientArchDao.getClientListfromArch(from, to, locale));
         } catch (Exception ex) {
-            map.put("from", from);
-            map.put("to", to);
+
         }
-        return map;
-    }*/
+        model.addObject("from", from);
+        model.addObject("to", to);
+        return model;
+    }
 }
 
 class MapClientSingleton {

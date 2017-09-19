@@ -57,7 +57,7 @@
                             </div>
                         </form:form>
 
-                        <div style="max-height:70%; overflow:auto;">
+                        <div style="max-height:50%; overflow:scroll;">
                             <table class="responstable" style="width: 95%" id="archTable">
                                 <c:set var="clientListArch" scope="session" value="${clientListFromArchive}"/>
                                 <c:if test="${clientListArch.size() > 0}">
@@ -117,20 +117,19 @@
                             </table>
                         </div>
                     </div>
-                    <div class="panel-footer" style="height: 90px;">
-                        <c:if test="${clientListArch.size() == 0}">
-                            <div class="alert alert-info"><img src='/avgustBel/resources/images/info.png'> Ничего не найдено</div>
-                        </c:if>
-                        <c:if test="${clientListArch.size() > 0}">
-                            <div class="alert alert-success"><img src='/avgustBel/resources/images/ok.png'> Данные загружены успешно</div>
-                        </c:if>
-                    </div>
                 </div>
             </div>
 
         </div>
     </div>
-
+    <div style="height: auto">
+        <c:if test="${clientListArch.size() == 0}">
+            <div class="alert alert-info"><img src='/avgustBel/resources/images/info.png'> Данные за указанный промежуток времени не найдены</div>
+        </c:if>
+        <c:if test="${clientListArch.size() > 0}">
+            <div class="alert alert-success"><img src='/avgustBel/resources/images/ok.png'> Данные загружены успешно</div>
+        </c:if>
+    </div>
 
     <jsp:include page="/WEB-INF/views/operator/footer.jsp"/>
 </div>

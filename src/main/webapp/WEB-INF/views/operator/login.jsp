@@ -39,17 +39,6 @@
 
         <br/>
         <div>
-        <%--    <div class="form-group">
-                <spring:message code="login.username" var="username"/>
-
-                <label class="control-label col-sm-2"><span
-                        class="glyphicon glyphicon-user"></span></label>
-
-                <div class="col-sm-10">
-                    <input type="text" title="${username}" placeholder="${username}"
-                           class="form-control" name="username"/>
-                </div>
-            </div>--%>
 
             <div class=" input-group" style="padding:10px 20px  20px 30px;">
                 <spring:message code="login.username" var="username"/>
@@ -58,17 +47,6 @@
                 <input type="text" title="${username}" placeholder="${username}"
                        class="form-control" name="username"/>
             </div>
-
-
-        <%--    <div class="form-group">
-                <spring:message code="login.password" var="pass"/>
-                <label class="control-label col-sm-2"> <span
-                        class="glyphicon glyphicon-lock"></span>${pass}</label>
-                <div class="col-sm-10">
-                    <input type="password" title="${pass}" placeholder="${pass}"
-                           class="form-control" name="password"/>
-                </div>
-            </div>--%>
 
             <div class=" input-group" style="padding:0 20px  20px 30px;">
                 <spring:message code="login.password" var="pass"/>

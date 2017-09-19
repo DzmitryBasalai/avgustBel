@@ -9,8 +9,8 @@ public class ConnectionSingleton {
     }
 
     private ConnectionSingleton() {
-     /*   InfoTableAdapterTCP infoTableAdapterTCP = new InfoTableAdapterTCP("192.168.175.118 ", 10007, 1);*/
-        InfoTableAdapterTCP infoTableAdapterTCP = new InfoTableAdapterTCP("192.168.1.111", 51234, 9999);
+        InfoTableAdapterTCP infoTableAdapterTCP = new InfoTableAdapterTCP("192.168.175.118", 10007, 1);
+        //InfoTableAdapterTCP infoTableAdapterTCP = new InfoTableAdapterTCP("192.168.1.111", 51234, 9999);
         infoTable = new InfoTable("", infoTableAdapterTCP);
     }
 

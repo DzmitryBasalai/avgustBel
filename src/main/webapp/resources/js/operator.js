@@ -163,7 +163,6 @@ function checkCarNajax() {
                 bodyMes += client.msg + '</div>';
                 $('#trCntrlMes').append(bodyMes);
 
-
                 if (client.state.id === 1) {
                     $('#callBtn').removeAttr("disabled");
                     $('#enterBtn').removeAttr("disabled");
@@ -224,6 +223,9 @@ function checkCarNajax() {
                         $('#returnBtn').attr("disabled", true);
                         $('#leaveBtn').attr("disabled", true);
                     }
+                }
+                if(stock.localeCompare("0")===0 || ramp.localeCompare("0")===0){
+                    $('#callBtn').attr("disabled", true);
                 }
             }
         });
@@ -333,7 +335,7 @@ function selectStock() {
     }
     $('#selectRampId').append(selectRampBody);
 
-    //checkCarNajax();
+    checkCarNajax();
 
 }
 

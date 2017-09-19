@@ -21,6 +21,7 @@
     <link href="<c:url value='/resources/css/operator.css' />" rel="stylesheet"/>
     <link href="<c:url value='/resources/css/keyboard.css' />" rel="stylesheet"/>
 
+
 </head>
 <body>
 
@@ -64,7 +65,8 @@
                                             <input title="${carN}"
                                                    placeholder="${carN}"
                                                    class="form-control keyboardInput mainFontSize"
-                                                   id="carNInput"/>
+                                                   id="carNInput"
+                                            />
                                         </div>
 
                                     </div>
@@ -76,7 +78,7 @@
                                             <span class=" glyphicon glyphicon-earphone"></span> ${phoneN}</label>
                                         <div class="col-sm-10">
                                             <input title="${phoneN}"
-                                                   placeholder="${phoneN}"
+                                                   placeholder="+375-xx-xxx-xx-xx"
                                                    class="form-control keyboardInput mainFontSize"
                                                    id="phoneNInput"/>
                                         </div>
@@ -88,8 +90,10 @@
 
                             <div class="col-sm-offset-2 col-sm-10">
                                 <input title="<spring:message code="enterBtn"/>"
-                                       type="submit" id="regButton" value="<spring:message code="client.registrationBtn"/>"
-                                       name="downloadBtn" class="btn btn-info btn-block mainFontSize" onclick="validate(this.name)">
+                                       type="submit" id="regButton"
+                                       value="<spring:message code="client.registrationBtn"/>"
+                                       name="downloadBtn" class="btn btn-info btn-block mainFontSize"
+                                       onclick="validate(this.name)">
                             </div>
 
                         </div>

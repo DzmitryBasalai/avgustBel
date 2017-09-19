@@ -21,6 +21,11 @@
     <link href="<c:url value='/resources/css/operator.css' />" rel="stylesheet"/>
     <link href="<c:url value='/resources/css/keyboard.css' />" rel="stylesheet"/>
 
+    <script type="text/javascript">
+        var locale = new Array();
+        locale['client.error.orderInput'] = "<spring:message code='client.error.companyInput' javaScriptEscape='true' />";
+    </script>
+
 </head>
 <body>
 <div class="mainDiv">
@@ -59,7 +64,7 @@
                                             <span class=" glyphicon glyphicon-earphone"></span> ${phoneN}</label>
                                         <div class="col-sm-10">
                                             <form:input title="${phoneN}"
-                                                        placeholder="${phoneN}"
+                                                        placeholder="+375-xx-xxx-xx-xx"
                                                         path="phoneN"
                                                         class="form-control keyboardInput mainFontSize"
                                                         id="phoneNInput"/>

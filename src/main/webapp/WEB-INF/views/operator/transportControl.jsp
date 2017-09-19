@@ -64,7 +64,7 @@
             <fieldset>
                 <div>
                     <spring:message code="operator.trControlTable.carRegN" var="carNum"/>
-                    <label class="control-label">
+                    <label for="carNumberInputId" class="control-label">
                         <img border="0" src="/avgustBel/resources/images/car.png"> ${carNum}</label>
                     <input
                             title="${carNum}"
@@ -78,7 +78,7 @@
                 <c:if test="${pageContext.request.isUserInRole('ROLE_ADMIN')||pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')||pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD')}">
                     <div>
                         <spring:message code="operator.trControl.stock" var="stock"/>
-                        <label class="control-label">
+                        <label for="selectStockId" class="control-label">
                             <img border="0" src="/avgustBel/resources/images/stock.png"> ${stock}</label>
 
                         <spring:message code="operator.stockN" var="stockN"/>
@@ -96,7 +96,7 @@
 
                     <div>
                         <spring:message code="operator.trControl.ramp" var="ramp"/>
-                        <label class="control-label">
+                        <label for="selectRampId" class="control-label">
                             <img border="0" src="/avgustBel/resources/images/ramp.png"> ${ramp}</label>
 
                         <select class="form-control" id="selectRampId" disabled onchange="selectRamp()">
@@ -199,13 +199,36 @@
         setDestinatuion("unload");
     </script>
 </c:if>
-<c:if test="${pageContext.request.isUserInRole('ROLE_SECURITY') || pageContext.request.isUserInRole('ROLE_ADMIN')}">
+<c:if test="${pageContext.request.isUserInRole('ROLE_SECURITY')}">
+
+    <script type="text/javascript">
+        //setDestinatuion("security");
+        setDestinatuion("all");
+    </script>
+</c:if>
+
+<c:if test="${pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD') && pageContext.request.isUserInRole('ROLE_SECURITY')}">
+
+    <script type="text/javascript">
+        setDestinatuion("securityAndLoad");
+    </script>
+</c:if>
+
+<c:if test="${pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD') && pageContext.request.isUserInRole('ROLE_SECURITY')}">
+
+    <script type="text/javascript">
+        setDestinatuion("securityAndUnload");
+    </script>
+</c:if>
+
+
+<c:if test="${pageContext.request.isUserInRole('ROLE_ADMIN') ||
+ (pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD') && pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD')) ||
+ (pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD') && pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD') && pageContext.request.isUserInRole('ROLE_SECURITY') )}">
 
     <script type="text/javascript">
     setDestinatuion("all");
     </script>
 </c:if>
-
-
 </body>
 </html>

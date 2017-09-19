@@ -12,7 +12,19 @@
             font-size: 30px;
         }
     </style>
-
+    <script type="text/javascript">
+        var locale = new Array();
+        locale['client.error.companyInput'] = "<spring:message code='client.error.companyInput' javaScriptEscape='true' />";
+        locale['client.error.carInput'] = "<spring:message code='client.error.carInput' javaScriptEscape='true' />";
+        locale['client.error.phoneNumber'] = "<spring:message code='client.error.phoneNumber' javaScriptEscape='true' />";
+        locale['client.error.checkInputData'] = "<spring:message code='client.error.checkInputData' javaScriptEscape='true' />";
+        locale['client.error.phoneAndCarRequired'] = "<spring:message code='client.error.phoneAndCarRequired' javaScriptEscape='true' />";
+        locale['client.error.companyPhoneAndCarRequired'] = "<spring:message code='client.error.companyPhoneAndCarRequired' javaScriptEscape='true' />";
+        locale['client.confirmation'] = "<spring:message code='client.confirmation' javaScriptEscape='true' />";
+        locale['client.carNumber'] = "<spring:message code='client.carNumber' javaScriptEscape='true' />";
+        locale['client.phoneNumber'] = "<spring:message code='client.phoneNumber' javaScriptEscape='true' />";
+        locale['client.company'] = "<spring:message code='client.company' javaScriptEscape='true' />";
+    </script>
 </head>
 <body>
 

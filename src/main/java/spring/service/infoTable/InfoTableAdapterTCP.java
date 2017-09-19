@@ -38,7 +38,7 @@ public class InfoTableAdapterTCP implements InfoTableAdapter {
                 InputStream sin = socket.getInputStream();
                 OutputStream sout = socket.getOutputStream();
 
-                byte[] displayRequest = makeDisplayRequest(i /*+ 1*/, data.get(i));
+                byte[] displayRequest = makeDisplayRequest(i + 1, data.get(i));
                 byte[] L2_package = makeL2pack(displayRequest, InfoTableAddress, (byte) 0x05);
                 byte[] CRC = countCS(L2_package, L2_package.length);
                 int length = L2_package.length;
@@ -86,11 +86,11 @@ public class InfoTableAdapterTCP implements InfoTableAdapter {
                 this.socket.close();
             }
         } catch (UnknownHostException ex) {
-            throw new Exception("Unable to find remote host (" + this.ipAddr + ":" + this.port + ").\n" + ex.getMessage());
+            throw new Exception("Нет связи с инфотабло по адресу: " + this.ipAddr + ":" + this.port);
         } catch (SocketException ex) {
-            throw new Exception("Unable to create remote host connection (" + this.ipAddr + ":" + this.port + ").\n" + ex.getMessage());
+            throw new Exception("Невозможно создать соединение с ардесом: " + this.ipAddr + ":" + this.port);
         } catch (IOException ex) {
-            throw new Exception("Unable to connect remote host (" + this.ipAddr + ":" + this.port + ").\n" + ex.getMessage());
+            throw new Exception("Нет связи с инфотабло по адресу: " + this.ipAddr + ":" + this.port);
         }
     }
 
@@ -133,12 +133,12 @@ public class InfoTableAdapterTCP implements InfoTableAdapter {
                 } while (newCount == -1 && (tryToResend++) < 5);
             }
             this.socket.close();
-        } catch (UnknownHostException ex) {
-            throw new Exception("Unable to find remote host (" + this.ipAddr + ":" + this.port + ").\n" + ex.getMessage());
+        }catch (UnknownHostException ex) {
+            throw new Exception("Нет связи с инфотабло по адресу: " + this.ipAddr + ":" + this.port);
         } catch (SocketException ex) {
-            throw new Exception("Unable to create remote host connection (" + this.ipAddr + ":" + this.port + ").\n" + ex.getMessage());
+            throw new Exception("Невозможно создать соединение с ардесом: " + this.ipAddr + ":" + this.port);
         } catch (IOException ex) {
-            throw new Exception("Unable to connect remote host (" + this.ipAddr + ":" + this.port + ").\n" + ex.getMessage());
+            throw new Exception("Нет связи с инфотабло по адресу: " + this.ipAddr + ":" + this.port);
         }
     }
 

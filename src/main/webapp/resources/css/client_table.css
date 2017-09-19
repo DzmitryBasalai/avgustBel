@@ -65,8 +65,8 @@ margin: 0 auto;
 @media (min-width: 380px) {
     .responstable th, .responstable td {
         display: table-cell;
-        padding-left: 0.5em;
-        padding-right: 0.5em;
+        padding-left: 0.35em;
+        padding-right: 0.35em;
         padding-bottom: 0.5em;
         padding-top: 0.5em;
         font-size: 14px;

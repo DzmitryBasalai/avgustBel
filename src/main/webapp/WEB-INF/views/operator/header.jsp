@@ -39,8 +39,16 @@
                     <form name="submitFormDataOperation" method="GET" action="/avgustBel/operator-dataOperations">
                         <a class="navbar-brand" href="javascript:document.submitFormDataOperation.submit()"
                            style="font-size: 22px"><spring:message code="operatorIndex.dataOperations"/></a>
-                      <%--  <input type="hidden" name="${_csrf.parameterName}"
-                               value="${_csrf.token}"/>--%>
+                      <%-- <input type="hidden" name="${_csrf.parameterName}"
+                                   value="${_csrf.token}"/>--%>
+                    </form>
+                </div>
+                <div style="display: inline-block">
+                    <form name="submitFormUserManag" method="GET" action="/avgustBel/operator-userManagement">
+                        <a class="navbar-brand" href="javascript:document.submitFormUserManag.submit()"
+                           style="font-size: 22px"><spring:message code="userManagement.title"/></a>
+                              <%--<input type="hidden" name="${_csrf.parameterName}"
+                                   value="${_csrf.token}"/>--%>
                     </form>
                 </div>
             </c:if>
