@@ -7,9 +7,9 @@
     <title><spring:message code="operatorIndex.dataOperations"/></title>
     <link rel="shortcut icon" type="image/png" href="/avgustBel/resources/images/logo.png">
     <%--scripts--%>
-    <script src="<c:url value='/resources/js/dataOperations.js' />"></script>
-    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+ <script src="<c:url value='/resources/js/dataOperations.js' />"></script>
+     <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+ <%--   <script type="text/javascript" src="js/bootstrap.min.js"></script>--%>
 
     <%--style--%>
     <link href="<c:url value='/resources/css/bootstrap.min.css' />" rel="stylesheet"/>

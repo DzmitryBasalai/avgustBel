@@ -290,7 +290,7 @@ public class OperatorService extends BaseService {
                 clientList.add(" ");
             }
             else {
-                clientList.add(clientEntry.getCarN());
+                clientList.add(clientEntry.getCarN().toUpperCase());
                 clientList.add(clientEntry.getStock());
                 clientList.add(clientEntry.getRamp());
             }

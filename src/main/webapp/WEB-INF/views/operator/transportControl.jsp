@@ -210,14 +210,14 @@
 <c:if test="${pageContext.request.isUserInRole('ROLE_OPERATOR_LOAD') && pageContext.request.isUserInRole('ROLE_SECURITY')}">
 
     <script type="text/javascript">
-        setDestinatuion("securityAndLoad");
+        setDestinatuion("all");
     </script>
 </c:if>
 
 <c:if test="${pageContext.request.isUserInRole('ROLE_OPERATOR_UNLOAD') && pageContext.request.isUserInRole('ROLE_SECURITY')}">
 
     <script type="text/javascript">
-        setDestinatuion("securityAndUnload");
+        setDestinatuion("all");
     </script>
 </c:if>
 

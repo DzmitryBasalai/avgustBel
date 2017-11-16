@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="true"
+                     xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+   <logger name="org.springframework.core">
+       <level value="info"/>
+   </logger>
+    <logger name="org.springframework.beans">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.context">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.web">
+        <level value="info"/>
+    </logger>
+    <root>
+        <level value="warn" />
+        <appender-ref ref="console" />
+    </root>
+
+</log4j:configuration>

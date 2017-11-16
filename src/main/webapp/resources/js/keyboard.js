@@ -70,7 +70,7 @@ var VKI_attach, VKI_close;
   this.VKI_numberPadOn = false;  // Show number pad by default
   this.VKI_kts = this.VKI_kt = "\u0420\u0443\u0441\u0441\u043a\u0438\u0439";  // Default keyboard layout
   this.VKI_langAdapt = true;  // Use lang attribute of input to select keyboard
-  this.VKI_size = 4;  // Default keyboard size (1-5)
+  this.VKI_size = 5;  // Default keyboard size (1-5)
   this.VKI_sizeAdj = false;  // Allow user to adjust keyboard size
   this.VKI_clearPasswords = false;  // Clear password fields on focus
   this.VKI_imageURI = "";  // If empty string, use imageless mode

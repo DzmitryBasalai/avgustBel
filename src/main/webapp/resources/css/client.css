@@ -1,0 +1,13 @@
+body {
+    -moz-user-select: -moz-none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+input {
+    -moz-user-select: text;
+    -webkit-user-select: text;
+    user-select: text;
+}
+input {
+    resize: none;
+}
