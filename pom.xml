@@ -11,7 +11,7 @@
     <properties>
         <springframework.version>4.3.8.RELEASE</springframework.version>
         <aspectj.version>1.8.10</aspectj.version>
-        <springsecurity.version>3.2.2.RELEASE</springsecurity.version>
+        <springsecurity.version>5.2.10.RELEASE</springsecurity.version>
 
         <slf4j.version>1.7.22</slf4j.version>
         <logback.version>1.0.13</logback.version>
